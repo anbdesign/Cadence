@@ -42,6 +42,12 @@ export class CadenceView extends BasesView {
 			this.renderHabitRow(propertyId, dateColumns, entryMap);
 		}
 
+		const todayIndex = dateColumns.findIndex(d => this.isToday(d));
+		if (todayIndex >= 0) {
+			this.containerEl.style.setProperty('--hh-today-col', String(todayIndex));
+			this.containerEl.createDiv({ cls: 'hh-today-column' });
+		}
+
 		// Measure after rendering so property icon glyphs (SF Symbols) are active in the font cache
 		const labels = propertyOrder.map(id => this.getPropertyLabel(id));
 		this.containerEl.style.setProperty('--hh-label-width', this.computeLabelWidth(labels));
@@ -98,7 +104,6 @@ export class CadenceView extends BasesView {
 			const cls = [
 				'hh-dot',
 				`hh-dot--${dotState}`,
-				this.isToday(date) ? 'hh-dot--today' : '',
 			].filter(Boolean).join(' ');
 
 			rowEl.createDiv({
