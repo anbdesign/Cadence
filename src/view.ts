@@ -41,6 +41,10 @@ export class CadenceView extends BasesView {
 		for (const propertyId of propertyOrder) {
 			this.renderHabitRow(propertyId, dateColumns, entryMap);
 		}
+
+		// Measure after rendering so property icon glyphs (SF Symbols) are active in the font cache
+		const labels = propertyOrder.map(id => this.getPropertyLabel(id));
+		this.containerEl.style.setProperty('--hh-label-width', this.computeLabelWidth(labels));
 	}
 
 	private buildEntryMap(): Record<string, BasesEntry> {
@@ -117,6 +121,26 @@ export class CadenceView extends BasesView {
 		if (value instanceof ListValue && value.isTruthy()) return 'filled';
 
 		return 'empty';
+	}
+
+	private computeLabelWidth(labels: string[]): string {
+		const probe = this.containerEl.createSpan({ cls: 'hh-label' });
+		Object.assign(probe.style, {
+			position: 'absolute',
+			visibility: 'hidden',
+			overflow: 'visible',
+			textOverflow: 'clip',
+			whiteSpace: 'nowrap',
+		});
+
+		let maxWidth = 0;
+		for (const label of labels) {
+			probe.textContent = label;
+			maxWidth = Math.max(maxWidth, probe.getBoundingClientRect().width);
+		}
+		probe.remove();
+
+		return `${Math.ceil(maxWidth)}px`;
 	}
 
 	// Strip the BasesPropertyId type prefix (e.g. "note.workout" → "workout")
