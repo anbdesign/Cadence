@@ -6,6 +6,19 @@
 - Entry point: `main.ts` compiled to `main.js` and loaded by Obsidian.
 - Required release artifacts: `main.js`, `manifest.json`, and optional `styles.css`.
 
+## Documentation
+
+Project-specific documentation lives in `docs/`.
+
+**When to reference docs:**
+- Before modifying `view.ts` or `date-utils.ts` — read `docs/architecture.md` for data-flow context
+- When adding a new feature that touches the rendering pipeline or date logic
+- When unfamiliar with the plugin's purpose or module structure
+
+| Doc | Contents |
+|-----|---------|
+| `docs/architecture.md` | Plugin purpose, module map, data flow, key types, patterns |
+
 ## Environment & tooling
 
 - Node.js: use current LTS (Node 18+ recommended).

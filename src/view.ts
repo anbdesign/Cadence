@@ -1,7 +1,7 @@
 import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, ListValue, QueryController } from 'obsidian';
 
 import CadencePlugin, { CADENCE_VIEW_TYPE } from './main';
-import { buildDateColumns, formatDate } from './date-utils';
+import { buildDateColumns, formatDate, getCurrentDate } from './date-utils';
 
 type DotState = 'filled' | 'empty' | 'missing';
 
@@ -20,6 +20,18 @@ export class CadenceView extends BasesView {
 
 		this.plugin = plugin;
 		this.containerEl = parentEl.createDiv({ cls: 'cadence-view' });
+
+		// dev-only: auto-refresh when __cadenceDevDate is set, and expose a manual refresh function
+		let _devDate: Date | undefined = (window as any).__cadenceDevDate;
+		try {
+			Object.defineProperty(window, '__cadenceDevDate', {
+				get: () => _devDate,
+				set: (val: Date | undefined) => { _devDate = val; this.render(); },
+				configurable: true,
+				enumerable: false,
+			});
+		} catch { /* ignore if not redefinable */ }
+		(window as any).__cadenceRefresh = () => this.render();
 	}
 
 	public onDataUpdated(): void {
@@ -43,15 +55,78 @@ export class CadenceView extends BasesView {
 			this.renderHabitRow(propertyId, dateColumns, entryMap);
 		}
 
-		const todayIndex = dateColumns.findIndex(d => this.isToday(d));
-		if (todayIndex >= 0) {
-			this.containerEl.style.setProperty('--hh-today-col', String(todayIndex));
-			this.containerEl.createDiv({ cls: 'hh-today-column' });
-		}
-
 		// Measure after rendering so property icon glyphs (SF Symbols) are active in the font cache
 		const labels = propertyOrder.map(id => this.getPropertyLabel(id));
 		this.containerEl.style.setProperty('--hh-label-width', this.computeLabelWidth(labels));
+
+		this.positionTodayPill(dateColumns);
+	}
+
+	private positionTodayPill(dateColumns: Date[]): void {
+		const todayIndex = dateColumns.findIndex(d => this.isToday(d));
+		if (todayIndex < 0) return;
+
+		const rows = Array.from(this.containerEl.querySelectorAll<HTMLElement>('.hh-row'));
+		if (rows.length === 0) return;
+
+		const dots = rows
+			.map(row => row.querySelectorAll<HTMLElement>('.hh-dot')[todayIndex])
+			.filter((d): d is HTMLElement => !!d);
+
+		const firstDot = dots[0];
+		const lastDot = dots[dots.length - 1];
+		if (!firstDot || !lastDot) return;
+
+		const containerRect = this.containerEl.getBoundingClientRect();
+		const firstRect = firstDot.getBoundingClientRect();
+		const lastRect = lastDot.getBoundingClientRect();
+
+		const pad = 5;
+		const x = firstRect.left - containerRect.left + this.containerEl.scrollLeft - pad;
+		const y = firstRect.top - containerRect.top + this.containerEl.scrollTop - pad;
+		const W = firstRect.width + 2 * pad;
+		const H = lastRect.bottom - firstRect.top + 2 * pad;
+
+		this.renderTodayPill(x, y, W, H);
+	}
+
+	private renderTodayPill(x: number, y: number, W: number, H: number): void {
+		const R = W / 2;
+		// k > 0.5523 (circular) lowers curvature at cap-to-straight junctions for a squircle-like smoothness
+		const k = 0.6;
+		const c = R * k;
+
+		const d = [
+			`M ${R} 0`,
+			`C ${R + c} 0, ${W} ${R - c}, ${W} ${R}`,
+			`L ${W} ${H - R}`,
+			`C ${W} ${H - R + c}, ${R + c} ${H}, ${R} ${H}`,
+			`C ${R - c} ${H}, 0 ${H - R + c}, 0 ${H - R}`,
+			`L 0 ${R}`,
+			`C 0 ${R - c}, ${R - c} 0, ${R} 0`,
+			'Z',
+		].join(' ');
+
+		const svgNS = 'http://www.w3.org/2000/svg';
+		const svg = document.createElementNS(svgNS, 'svg');
+		Object.assign(svg.style, {
+			position: 'absolute',
+			top: `${y}px`,
+			left: `${x}px`,
+			width: `${W}px`,
+			height: `${H}px`,
+			pointerEvents: 'none',
+			overflow: 'visible',
+		});
+
+		const path = document.createElementNS(svgNS, 'path');
+		path.setAttribute('d', d);
+		path.style.fill = 'none';
+		path.style.stroke = 'var(--interactive-accent)';
+		path.style.strokeWidth = '1.5';
+		svg.appendChild(path);
+
+		this.containerEl.appendChild(svg);
 	}
 
 	private buildEntryMap(): Record<string, BasesEntry> {
@@ -160,6 +235,6 @@ export class CadenceView extends BasesView {
 	}
 
 	private isToday(date: Date): boolean {
-		return formatDate(date) === formatDate(new Date());
+		return formatDate(date) === formatDate(getCurrentDate());
 	}
 }

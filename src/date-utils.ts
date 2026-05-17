@@ -1,5 +1,12 @@
 export type HeatmapTimescale = 'week' | 'month';
 
+export function getCurrentDate(): Date {
+	if (typeof window !== 'undefined' && (window as any).__cadenceDevDate) {
+		return new Date((window as any).__cadenceDevDate);
+	}
+	return new Date();
+}
+
 export function buildDateColumns(timescale: string): Date[] {
 	if (timescale === 'month') {
 		return buildCurrentMonthColumns();
@@ -9,7 +16,7 @@ export function buildDateColumns(timescale: string): Date[] {
 }
 
 export function buildCurrentWeekColumns(): Date[] {
-	const today = new Date();
+	const today = getCurrentDate();
 	const start = startOfWeek(today);
 
 	return Array.from({ length: 7 }, (_, index) => {
@@ -20,7 +27,7 @@ export function buildCurrentWeekColumns(): Date[] {
 }
 
 export function buildCurrentMonthColumns(): Date[] {
-	const today = new Date();
+	const today = getCurrentDate();
 	const year = today.getFullYear();
 	const month = today.getMonth();
 
