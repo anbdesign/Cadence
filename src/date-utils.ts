@@ -13,17 +13,22 @@ export function getCurrentDate(): Date {
 	return new Date();
 }
 
-export function buildDateColumns(timescale: string): Date[] {
+export function buildDateColumns(timescale: string, referenceDate?: Date | null): Date[] {
+	const anchor = referenceDate ?? getCurrentDate();
+
 	if (timescale === 'month') {
-		return buildCurrentMonthColumns();
+		return buildMonthColumns(anchor);
 	}
 
-	return buildCurrentWeekColumns();
+	return buildWeekColumns(anchor);
 }
 
 export function buildCurrentWeekColumns(): Date[] {
-	const today = getCurrentDate();
-	const start = startOfWeek(today);
+	return buildWeekColumns(getCurrentDate());
+}
+
+function buildWeekColumns(anchor: Date): Date[] {
+	const start = startOfWeek(anchor);
 
 	return Array.from({ length: 7 }, (_, index) => {
 		const date = new Date(start);
@@ -33,12 +38,15 @@ export function buildCurrentWeekColumns(): Date[] {
 }
 
 export function buildCurrentMonthColumns(): Date[] {
-	const today = getCurrentDate();
-	const year = today.getFullYear();
-	const month = today.getMonth();
+	return buildMonthColumns(getCurrentDate());
+}
+
+function buildMonthColumns(anchor: Date): Date[] {
+	const year = anchor.getFullYear();
+	const month = anchor.getMonth();
 
 	const columns: Date[] = [];
-	const cursor = new Date(year, month, 1);
+	const cursor = new Date(year, month, 1, 12, 0, 0);
 
 	while (cursor.getMonth() === month) {
 		columns.push(new Date(cursor));

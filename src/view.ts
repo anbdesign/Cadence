@@ -1,4 +1,4 @@
-import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, ListValue, QueryController } from 'obsidian';
+import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, ListValue, MarkdownView, QueryController } from 'obsidian';
 
 declare global {
 	interface Window {
@@ -51,7 +51,8 @@ export class CadenceView extends BasesView {
 		const timescaleValue = this.config.get('timescale');
 		const timescale = typeof timescaleValue === 'string' ? timescaleValue : 'week';
 		const propertyOrder = this.config.getOrder();
-		const dateColumns = buildDateColumns(timescale);
+		const hostDate = this.detectHostNoteDate();
+		const dateColumns = buildDateColumns(timescale, hostDate);
 		const entryMap = this.buildEntryMap();
 
 		this.containerEl.style.setProperty('--hh-column-count', String(dateColumns.length));
@@ -258,5 +259,22 @@ export class CadenceView extends BasesView {
 
 	private isToday(date: Date): boolean {
 		return formatDate(date) === formatDate(getCurrentDate());
+	}
+
+	// If this view is embedded inside a YYYY-MM-DD markdown note, return that date.
+	// Returns null when the view is opened directly or the host note isn't a daily note.
+	private detectHostNoteDate(): Date | null {
+		const leaves = this.app.workspace.getLeavesOfType('markdown');
+		for (const leaf of leaves) {
+			const view = leaf.view as MarkdownView;
+			if (view.containerEl.contains(this.containerEl) && view.file) {
+				const { basename } = view.file;
+				const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(basename);
+				if (match) {
+					return new Date(parseInt(match[1]!), parseInt(match[2]!) - 1, parseInt(match[3]!), 12, 0, 0);
+				}
+			}
+		}
+		return null;
 	}
 }
