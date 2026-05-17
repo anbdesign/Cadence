@@ -1,8 +1,14 @@
+declare global {
+	interface Window {
+		__cadenceDevDate?: Date;
+	}
+}
+
 export type HeatmapTimescale = 'week' | 'month';
 
 export function getCurrentDate(): Date {
-	if (typeof window !== 'undefined' && (window as any).__cadenceDevDate) {
-		return new Date((window as any).__cadenceDevDate);
+	if (typeof window !== 'undefined' && window.__cadenceDevDate) {
+		return new Date(window.__cadenceDevDate);
 	}
 	return new Date();
 }

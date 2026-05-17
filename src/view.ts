@@ -1,5 +1,12 @@
 import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, ListValue, QueryController } from 'obsidian';
 
+declare global {
+	interface Window {
+		__cadenceDevDate?: Date;
+		__cadenceRefresh?: () => void;
+	}
+}
+
 import CadencePlugin, { CADENCE_VIEW_TYPE } from './main';
 import { buildDateColumns, formatDate, getCurrentDate } from './date-utils';
 
@@ -22,7 +29,7 @@ export class CadenceView extends BasesView {
 		this.containerEl = parentEl.createDiv({ cls: 'cadence-view' });
 
 		// dev-only: auto-refresh when __cadenceDevDate is set, and expose a manual refresh function
-		let _devDate: Date | undefined = (window as any).__cadenceDevDate;
+		let _devDate: Date | undefined = window.__cadenceDevDate;
 		try {
 			Object.defineProperty(window, '__cadenceDevDate', {
 				get: () => _devDate,
@@ -31,7 +38,7 @@ export class CadenceView extends BasesView {
 				enumerable: false,
 			});
 		} catch { /* ignore if not redefinable */ }
-		(window as any).__cadenceRefresh = () => this.render();
+		window.__cadenceRefresh = () => this.render();
 	}
 
 	public onDataUpdated(): void {
@@ -121,9 +128,9 @@ export class CadenceView extends BasesView {
 
 		const path = document.createElementNS(svgNS, 'path');
 		path.setAttribute('d', d);
-		path.style.fill = 'none';
-		path.style.stroke = 'var(--interactive-accent)';
-		path.style.strokeWidth = '1.5';
+		path.setAttribute('fill', 'none');
+		path.setAttribute('stroke', 'var(--interactive-accent)');
+		path.setAttribute('stroke-width', '1.5');
 		svg.appendChild(path);
 
 		this.containerEl.appendChild(svg);
