@@ -86,6 +86,47 @@ npm run build
   ```
 - Reload Obsidian and enable the plugin in **Settings → Community plugins**.
 
+## Obsidian CLI for plugin development
+
+The `obsidian` CLI lets you reload the plugin, inspect errors, and verify UI without manually restarting Obsidian. Use it after every build instead of the manual copy-and-reload cycle.
+
+### Dev workflow (in order)
+
+```bash
+# 1. Reload the plugin after a build
+obsidian plugin:reload id=cadence
+
+# 2. Check for runtime errors
+obsidian dev:errors
+
+# 3. Check console output
+obsidian dev:console level=error
+
+# 4. Verify UI visually
+obsidian dev:screenshot path=screenshot.png
+
+# 5. Inspect a specific DOM element
+obsidian dev:dom selector=".your-css-class" text
+```
+
+### Targeted inspection
+
+```bash
+# Run arbitrary JS against the live app
+obsidian eval code="app.vault.getFiles().length"
+
+# Inspect a CSS property on an element
+obsidian dev:css selector=".workspace-leaf" prop=background-color
+
+# Toggle mobile emulation
+obsidian dev:mobile on
+```
+
+### Syntax notes
+
+- Parameters use `=` with quoted values when the value contains spaces: `obsidian eval code="app.workspace.activeLeaf"`
+- Run `obsidian help` for the full command reference
+
 ## Commands & settings
 
 - Any user-facing commands should be added via `this.addCommand(...)`.
