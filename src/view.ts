@@ -29,7 +29,8 @@ export class CadenceView extends BasesView {
 	private render(): void {
 		this.containerEl.empty();
 
-		const timescale = String(this.config.get('timescale') ?? 'week');
+		const timescaleValue = this.config.get('timescale');
+		const timescale = typeof timescaleValue === 'string' ? timescaleValue : 'week';
 		const propertyOrder = this.config.getOrder();
 		const dateColumns = buildDateColumns(timescale);
 		const entryMap = this.buildEntryMap();
