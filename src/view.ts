@@ -1,4 +1,4 @@
-import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, QueryController } from 'obsidian';
+import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, ListValue, QueryController } from 'obsidian';
 
 import CadencePlugin, { CADENCE_VIEW_TYPE } from './main';
 import { buildDateColumns, formatDate } from './date-utils';
@@ -114,6 +114,7 @@ export class CadenceView extends BasesView {
 
 		if (value === null) return 'empty';
 		if (value instanceof BooleanValue && value.isTruthy()) return 'filled';
+		if (value instanceof ListValue && value.isTruthy()) return 'filled';
 
 		return 'empty';
 	}
