@@ -44,7 +44,7 @@
 }
 
 .hh-dot--empty {
-	border: 1.5px solid var(--text-muted);
+	background: var(--text-faint);
 }
 
 .hh-dot--missing {
