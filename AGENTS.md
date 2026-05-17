@@ -103,22 +103,47 @@ npm run build
 
 The `obsidian` CLI lets you reload the plugin, inspect errors, and verify UI without manually restarting Obsidian. Use it after every build instead of the manual copy-and-reload cycle.
 
+### Working from a git worktree
+
+When Claude Code runs in a worktree (`.claude/worktrees/<name>/`), `npm run build` writes `main.js` and `styles.css` into the worktree directory — **not** the live plugin folder that Obsidian loads from. You must copy the artifacts before reloading:
+
+```bash
+# After npm run build in the worktree:
+PLUGIN_DIR="/path/to/Vault/.obsidian/plugins/cadence"
+WORKTREE_DIR="$(pwd)"   # or the absolute worktree path
+
+cp "$WORKTREE_DIR/main.js"   "$PLUGIN_DIR/main.js"
+cp "$WORKTREE_DIR/styles.css" "$PLUGIN_DIR/styles.css"
+obsidian plugin:reload id=cadence
+```
+
+For this project the paths are:
+- Worktree: `.claude/worktrees/<name>/`
+- Live plugin: `<Vault>/.obsidian/plugins/Cadence/`
+
 ### Dev workflow (in order)
 
 ```bash
-# 1. Reload the plugin after a build
+# 1. Build
+npm run build
+
+# 2. Copy artifacts to the live plugin folder (worktree only — skip if building in-place)
+cp main.js /path/to/Vault/.obsidian/plugins/Cadence/main.js
+cp styles.css /path/to/Vault/.obsidian/plugins/Cadence/styles.css
+
+# 3. Reload the plugin
 obsidian plugin:reload id=cadence
 
-# 2. Check for runtime errors
+# 4. Check for runtime errors
 obsidian dev:errors
 
-# 3. Check console output
+# 5. Check console output
 obsidian dev:console level=error
 
-# 4. Verify UI visually
+# 6. Verify UI visually
 obsidian dev:screenshot path=screenshot.png
 
-# 5. Inspect a specific DOM element
+# 7. Inspect a specific DOM element
 obsidian dev:dom selector=".your-css-class" text
 ```
 
@@ -290,10 +315,13 @@ this.registerInterval(window.setInterval(() => { /* ... */ }, 1000));
 
 ## Troubleshooting
 
-- Plugin doesn't load after build: ensure `main.js` and `manifest.json` are at the top level of the plugin folder under `<Vault>/.obsidian/plugins/<plugin-id>/`. 
+- Plugin doesn't load after build: ensure `main.js` and `manifest.json` are at the top level of the plugin folder under `<Vault>/.obsidian/plugins/<plugin-id>/`.
+- **Working from a worktree**: build artifacts land in the worktree, not the live plugin folder. Copy `main.js`/`styles.css` to `<Vault>/.obsidian/plugins/Cadence/` before reloading. See the worktree section above.
 - Build issues: if `main.js` is missing, run `npm run build` or `npm run dev` to compile your TypeScript source code.
 - Commands not appearing: verify `addCommand` runs after `onload` and IDs are unique.
 - Settings not persisting: ensure `loadData`/`saveData` are awaited and you re-render the UI after changes.
+- **BasesView not reflecting changes after reload**: `plugin:reload` replaces the plugin class but existing `BasesView` instances in open workspace leaves are **not** re-instantiated. The constructor code (e.g. `window.__cadenceRefresh`) won't run until the `.base` file is closed and reopened. Use the snippet in `docs/architecture.md` to detach and reopen all bases leaves programmatically.
+- **`window.__cadenceRefresh` is stale after reload**: the hook set in the constructor points to the old view instance. It won't call the new `render()` until the view is re-instantiated (see above).
 - Mobile-only issues: confirm you're not using desktop-only APIs; check `isDesktopOnly` and adjust.
 
 ## References

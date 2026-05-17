@@ -81,19 +81,35 @@ Obsidian API types used: `BasesView`, `BasesEntry`, `BasesPropertyId`, `BooleanV
 
 ## Development & testing
 
+### Worktree builds
+
+When Claude Code works in a git worktree (`.claude/worktrees/<name>/`), `npm run build` writes output to the worktree directory. Obsidian loads the plugin from the original folder (`<Vault>/.obsidian/plugins/Cadence/`). After every build in a worktree, copy the artifacts before reloading:
+
+```bash
+cp main.js   /path/to/Vault/.obsidian/plugins/Cadence/main.js
+cp styles.css /path/to/Vault/.obsidian/plugins/Cadence/styles.css
+obsidian plugin:reload id=cadence
+```
+
+Without this copy, the reload succeeds but Obsidian keeps running the old code.
+
+### BasesView persistence across plugin:reload
+
+`plugin:reload` hot-swaps the plugin class but does **not** destroy existing workspace leaves. Open `BasesView` instances keep running with their old constructor bindings (including `window.__cadenceRefresh`). To fully re-instantiate the view after a reload, detach and reopen every bases leaf:
+
+```bash
+obsidian eval code="(async()=>{const leaves=app.workspace.getLeavesOfType('bases'); for(const l of leaves){const s=l.getViewState(); const file=s.state.file; l.detach(); const f=app.vault.getAbstractFileByPath(file); if(f){const nl=app.workspace.getLeaf(true); await nl.openFile(f);}}})()"
+```
+
+This must be done once after each `plugin:reload` when the constructor sets up state (e.g. the `__cadenceDevDate` setter or `__cadenceRefresh`).
+
 ### Dev date override
 
 All date logic routes through `getCurrentDate()` in `src/date-utils.ts` rather than calling `new Date()` directly. This function checks `window.__cadenceDevDate` first, making it possible to freeze the plugin's sense of "today" during development without touching production code.
 
 The `CadenceView` constructor installs a setter on `window.__cadenceDevDate` so that assigning a value **automatically re-renders** the view.
 
-**One-time setup after each build + plugin reload** — BasesView instances persist across `plugin:reload`, so the new constructor code doesn't run until the `.base` file is reopened:
-
-```bash
-obsidian eval code="const l=app.workspace.getLeavesOfType('bases')[0]; const s=l.getViewState(); l.detach(); app.workspace.openLinkText(s.state.file,'',true)"
-```
-
-**Usage:**
+**One-time setup after each build + plugin reload** — run the detach/reopen snippet above so the new constructor is active, then:
 
 ```bash
 # Set override (auto-renders immediately) — use local noon to avoid UTC-offset surprises
@@ -106,5 +122,7 @@ obsidian eval code="window.__cadenceDevDate = undefined"
 # Manual refresh fallback (if setter isn't active yet)
 obsidian eval code="window.__cadenceRefresh()"
 ```
+
+**Note:** `window.__cadenceRefresh` goes stale after `plugin:reload` if the view hasn't been re-instantiated. The handle still points to the old view's `render()`. Run the detach/reopen snippet first to get a fresh handle.
 
 The override resets automatically when Obsidian restarts. It has no effect in production because nothing outside the dev workflow sets `window.__cadenceDevDate`.

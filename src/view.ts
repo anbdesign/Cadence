@@ -62,6 +62,8 @@ export class CadenceView extends BasesView {
 			this.renderHabitRow(propertyId, dateColumns, entryMap);
 		}
 
+		this.renderFooter(dateColumns);
+
 		// Measure after rendering so property icon glyphs (SF Symbols) are active in the font cache
 		const labels = propertyOrder.map(id => this.getPropertyLabel(id));
 		this.containerEl.style.setProperty('--hh-label-width', this.computeLabelWidth(labels));
@@ -159,6 +161,19 @@ export class CadenceView extends BasesView {
 
 		for (const date of dateColumns) {
 			headerEl.createDiv({
+				cls: 'hh-day-label',
+				text: String(date.getDate()),
+			});
+		}
+	}
+
+	private renderFooter(dateColumns: Date[]): void {
+		const footerEl = this.containerEl.createDiv({ cls: 'hh-footer' });
+
+		footerEl.createDiv({ cls: 'hh-label hh-label--header', text: '' });
+
+		for (const date of dateColumns) {
+			footerEl.createDiv({
 				cls: 'hh-day-label',
 				text: this.getDayLabel(date),
 			});
