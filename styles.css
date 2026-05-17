@@ -51,5 +51,7 @@
 
 .hh-dot--missing {
 	background: var(--background-modifier-border);
+	width: 6px;
+	height: 6px;
 }
 
