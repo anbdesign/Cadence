@@ -33,6 +33,11 @@
 	text-align: center;
 }
 
+.hh-day-label--today {
+	font-weight: bold;
+	font-style: italic;
+}
+
 .hh-dot {
 	width: 10px;
 	height: 10px;

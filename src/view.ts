@@ -52,18 +52,19 @@ export class CadenceView extends BasesView {
 		const timescale = typeof timescaleValue === 'string' ? timescaleValue : 'week';
 		const propertyOrder = this.config.getOrder();
 		const hostDate = this.detectHostNoteDate();
+		const focusDate = hostDate ?? getCurrentDate();
 		const dateColumns = buildDateColumns(timescale, hostDate);
 		const entryMap = this.buildEntryMap();
 
 		this.containerEl.style.setProperty('--hh-column-count', String(dateColumns.length));
 
-		this.renderHeader(dateColumns);
+		this.renderHeader(dateColumns, focusDate);
 
 		for (const propertyId of propertyOrder) {
 			this.renderHabitRow(propertyId, dateColumns, entryMap);
 		}
 
-		this.renderFooter(dateColumns);
+		this.renderFooter(dateColumns, focusDate);
 
 		// Measure after rendering so property icon glyphs (SF Symbols) are active in the font cache
 		const labels = propertyOrder.map(id => this.getPropertyLabel(id));
@@ -155,27 +156,27 @@ export class CadenceView extends BasesView {
 		return entriesByDate;
 	}
 
-	private renderHeader(dateColumns: Date[]): void {
+	private renderHeader(dateColumns: Date[], focusDate: Date): void {
 		const headerEl = this.containerEl.createDiv({ cls: 'hh-header' });
 
 		headerEl.createDiv({ cls: 'hh-label hh-label--header', text: '' });
 
 		for (const date of dateColumns) {
 			headerEl.createDiv({
-				cls: 'hh-day-label',
+				cls: this.isFocusDate(date, focusDate) ? 'hh-day-label hh-day-label--today' : 'hh-day-label',
 				text: String(date.getDate()),
 			});
 		}
 	}
 
-	private renderFooter(dateColumns: Date[]): void {
+	private renderFooter(dateColumns: Date[], focusDate: Date): void {
 		const footerEl = this.containerEl.createDiv({ cls: 'hh-footer' });
 
 		footerEl.createDiv({ cls: 'hh-label hh-label--header', text: '' });
 
 		for (const date of dateColumns) {
 			footerEl.createDiv({
-				cls: 'hh-day-label',
+				cls: this.isFocusDate(date, focusDate) ? 'hh-day-label hh-day-label--today' : 'hh-day-label',
 				text: this.getDayLabel(date),
 			});
 		}
@@ -259,6 +260,10 @@ export class CadenceView extends BasesView {
 
 	private isToday(date: Date): boolean {
 		return formatDate(date) === formatDate(getCurrentDate());
+	}
+
+	private isFocusDate(date: Date, focusDate: Date): boolean {
+		return formatDate(date) === formatDate(focusDate);
 	}
 
 	// If this view is embedded inside a YYYY-MM-DD markdown note, return that date.
