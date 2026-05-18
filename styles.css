@@ -47,7 +47,7 @@
 }
 
 .hh-dot--filled {
-	background: var(--interactive-accent);
+	background: var(--color-accent);
 }
 
 .hh-dot--empty {

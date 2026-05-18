@@ -133,7 +133,7 @@ export class CadenceView extends BasesView {
 		const path = document.createElementNS(svgNS, 'path');
 		path.setAttribute('d', d);
 		path.setAttribute('fill', 'none');
-		path.setAttribute('stroke', 'var(--interactive-accent)');
+		path.setAttribute('stroke', 'var(--color-accent)');
 		path.setAttribute('stroke-width', '1.5');
 		svg.appendChild(path);
 
