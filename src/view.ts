@@ -50,6 +50,13 @@ export class CadenceView extends BasesView {
 
 		const timescaleValue = this.config.get('timescale');
 		const timescale = typeof timescaleValue === 'string' ? timescaleValue : 'week';
+
+		const sizeValue = this.config.get('size');
+		const size = (typeof sizeValue === 'string' && ['small', 'medium', 'large'].includes(sizeValue))
+			? sizeValue : 'small';
+		this.containerEl.classList.remove('cadence-view--small', 'cadence-view--medium', 'cadence-view--large');
+		this.containerEl.classList.add(`cadence-view--${size}`);
+
 		const propertyOrder = this.config.getOrder();
 		const hostDate = this.detectHostNoteDate();
 		const focusDate = hostDate ?? getCurrentDate();
