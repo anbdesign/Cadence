@@ -19,6 +19,7 @@
 	color: var(--text-muted);
 	font-size: var(--font-smallest);
 	overflow: hidden;
+	text-align: right;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
