@@ -10,5 +10,12 @@ export function getHeatmapViewOptions(): ViewOption[] {
 			// Record<string, string>: key = stored value, value = display label
 			options: { week: 'Week', month: 'Month' },
 		},
+		{
+			type: 'dropdown',
+			displayName: 'Size',
+			key: 'size',
+			default: 'small',
+			options: { small: 'Small', medium: 'Medium', large: 'Large' },
+		},
 	];
 }

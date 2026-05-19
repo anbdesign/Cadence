@@ -50,6 +50,13 @@ export class CadenceView extends BasesView {
 
 		const timescaleValue = this.config.get('timescale');
 		const timescale = typeof timescaleValue === 'string' ? timescaleValue : 'week';
+
+		const sizeValue = this.config.get('size');
+		const size = (typeof sizeValue === 'string' && ['small', 'medium', 'large'].includes(sizeValue))
+			? sizeValue : 'small';
+		this.containerEl.classList.remove('cadence-view--small', 'cadence-view--medium', 'cadence-view--large');
+		this.containerEl.classList.add(`cadence-view--${size}`);
+
 		const propertyOrder = this.config.getOrder();
 		const hostDate = this.detectHostNoteDate();
 		const focusDate = hostDate ?? getCurrentDate();
@@ -92,7 +99,8 @@ export class CadenceView extends BasesView {
 		const firstRect = firstDot.getBoundingClientRect();
 		const lastRect = lastDot.getBoundingClientRect();
 
-		const pad = 5;
+		const padPx = getComputedStyle(this.containerEl).getPropertyValue('--hh-pill-pad').trim();
+		const pad = parseFloat(padPx) || 5;
 		const x = firstRect.left - containerRect.left + this.containerEl.scrollLeft - pad;
 		const y = firstRect.top - containerRect.top + this.containerEl.scrollTop - pad;
 		const W = firstRect.width + 2 * pad;
