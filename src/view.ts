@@ -99,7 +99,8 @@ export class CadenceView extends BasesView {
 		const firstRect = firstDot.getBoundingClientRect();
 		const lastRect = lastDot.getBoundingClientRect();
 
-		const pad = 5;
+		const padPx = getComputedStyle(this.containerEl).getPropertyValue('--hh-pill-pad').trim();
+		const pad = parseFloat(padPx) || 5;
 		const x = firstRect.left - containerRect.left + this.containerEl.scrollLeft - pad;
 		const y = firstRect.top - containerRect.top + this.containerEl.scrollTop - pad;
 		const W = firstRect.width + 2 * pad;
