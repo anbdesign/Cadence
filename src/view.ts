@@ -65,6 +65,10 @@ export class CadenceView extends BasesView {
 
 		this.containerEl.style.setProperty('--hh-column-count', String(dateColumns.length));
 
+		const labelAlignValue = this.config.get('label-align');
+		const labelAlign = typeof labelAlignValue === 'string' ? labelAlignValue : 'right';
+		this.containerEl.style.setProperty('--hh-label-align', labelAlign);
+
 		this.renderHeader(dateColumns, focusDate);
 
 		for (const propertyId of propertyOrder) {

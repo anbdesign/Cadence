@@ -17,5 +17,12 @@ export function getHeatmapViewOptions(): ViewOption[] {
 			default: 'small',
 			options: { small: 'Small', medium: 'Medium', large: 'Large' },
 		},
+		{
+			type: 'dropdown',
+			displayName: 'Label alignment',
+			key: 'label-align',
+			default: 'right',
+			options: { left: 'Left', right: 'Right' },
+		},
 	];
 }
