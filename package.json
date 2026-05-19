@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
-	"version": "0.1.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"name": "cadence",
+	"version": "0.2.0",
+	"description": "A Bases view that renders a heatmap of daily habits from date-named notes and boolean properties.",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
