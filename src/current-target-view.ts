@@ -1,4 +1,4 @@
-import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, IconName, ListValue, MarkdownView, QueryController, getIcon } from 'obsidian';
+import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, ListValue, MarkdownView, QueryController, getIcon } from 'obsidian';
 import CadencePlugin from './main';
 import { buildDateColumns, formatDate, getCurrentDate, startOfWeek } from './date-utils';
 import { GoalMode, computeGoal } from './goal-scaling';
@@ -149,7 +149,7 @@ export class CurrentTargetView extends BasesView {
 		if (keys.length === 0) return null;
 		const latest = keys.sort().at(-1)!;
 		const [y, m, d] = latest.split('-').map(Number);
-		return new Date(y!, m! - 1, d!, 12, 0, 0);
+		return new Date(y!, m! - 1, d, 12, 0, 0);
 	}
 }
 
@@ -158,7 +158,7 @@ function renderIcon(el: HTMLElement, iconStr: string): void {
 	if (!s) return;
 	// Lucide icon names are kebab-case lowercase strings
 	if (/^[a-z][a-z0-9-]*$/.test(s)) {
-		const svg = getIcon(s as IconName);
+		const svg = getIcon(s);
 		if (svg) {
 			el.appendChild(svg);
 			return;
