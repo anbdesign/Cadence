@@ -68,3 +68,39 @@
 	height: var(--hh-missing-size, 6px);
 }
 
+/* ── Current / target view ───────────────────── */
+.ct-view {
+	display: grid;
+	grid-template-columns: repeat(var(--ct-columns, 3), 1fr);
+	gap: 12px;
+	padding: 16px;
+}
+
+.ct-cell {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.ct-icon {
+	color: var(--text-muted);
+	font-size: 1em;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+}
+
+.ct-icon svg {
+	width: 1em;
+	height: 1em;
+}
+
+.ct-count {
+	font-size: var(--font-small);
+	color: var(--text-muted);
+	white-space: nowrap;
+}
+
+.ct-count--ahead  { color: var(--color-accent); }
+.ct-count--behind { color: var(--text-faint); }
+
