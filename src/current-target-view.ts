@@ -22,6 +22,7 @@ export class CurrentTargetView extends BasesView {
 	}
 
 	public onDataUpdated(): void {
+		this.plugin.currentTargetConfig = this.config;
 		this.render();
 	}
 

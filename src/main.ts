@@ -1,4 +1,4 @@
-import { Plugin } from 'obsidian';
+import { BasesViewConfig, Plugin } from 'obsidian';
 
 import { CadenceView } from './view';
 import { getHeatmapViewOptions } from './view-options';
@@ -8,6 +8,8 @@ import { getCurrentTargetViewOptions } from './current-target-view-options';
 export const CADENCE_VIEW_TYPE = 'cadence';
 
 export default class CadencePlugin extends Plugin {
+	currentTargetConfig: BasesViewConfig | null = null;
+
 	async onload() {
 		const registered = this.registerBasesView(CADENCE_VIEW_TYPE, {
 			name: 'Cadence',
@@ -28,7 +30,7 @@ export default class CadencePlugin extends Plugin {
 			factory: (controller, containerEl) => {
 				return new CurrentTargetView(controller, containerEl, this);
 			},
-			options: getCurrentTargetViewOptions,
+			options: () => getCurrentTargetViewOptions(this),
 		});
 	}
 }
