@@ -205,22 +205,31 @@ function renderRing(parent: HTMLElement, current: number, goal: number): void {
 	svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
 	svg.setAttribute('class', 'ct-ring');
 
-	const track = document.createElementNS(svgNS, 'circle');
-	track.setAttribute('cx', String(cx));
-	track.setAttribute('cy', String(cx));
-	track.setAttribute('r', String(r));
-	track.setAttribute('class', 'ct-ring-track');
-	svg.appendChild(track);
+	if (progress >= 1) {
+		const solid = document.createElementNS(svgNS, 'circle');
+		solid.setAttribute('cx', String(cx));
+		solid.setAttribute('cy', String(cx));
+		solid.setAttribute('r', String(r));
+		solid.setAttribute('class', 'ct-ring-dot');
+		svg.appendChild(solid);
+	} else {
+		const track = document.createElementNS(svgNS, 'circle');
+		track.setAttribute('cx', String(cx));
+		track.setAttribute('cy', String(cx));
+		track.setAttribute('r', String(r));
+		track.setAttribute('class', 'ct-ring-track');
+		svg.appendChild(track);
 
-	if (progress > 0) {
-		const fill = document.createElementNS(svgNS, 'circle');
-		fill.setAttribute('cx', String(cx));
-		fill.setAttribute('cy', String(cx));
-		fill.setAttribute('r', String(r));
-		fill.setAttribute('class', 'ct-ring-fill');
-		fill.style.strokeDasharray = String(circumference);
-		fill.style.strokeDashoffset = String(circumference * (1 - progress));
-		svg.appendChild(fill);
+		if (progress > 0) {
+			const fill = document.createElementNS(svgNS, 'circle');
+			fill.setAttribute('cx', String(cx));
+			fill.setAttribute('cy', String(cx));
+			fill.setAttribute('r', String(r));
+			fill.setAttribute('class', 'ct-ring-fill');
+			fill.style.strokeDasharray = String(circumference);
+			fill.style.strokeDashoffset = String(circumference * (1 - progress));
+			svg.appendChild(fill);
+		}
 	}
 
 	parent.appendChild(svg);
