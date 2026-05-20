@@ -40,10 +40,26 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 			shouldHide: (config: BasesViewConfig) => config.getOrder().length <= index,
 			items: [
 				{
-					type: 'text',
+					type: 'dropdown',
 					displayName: 'Icon',
-					key: `icon-${i}`,
+					key: `icon-mode-${index}`,
+					default: 'property-name',
+					options: {
+						'property-name': 'Property name',
+						'first-letter':  'First letter',
+						'text':          'Text',
+						'lucide':        'Lucide icon',
+					},
+				},
+				{
+					type: 'text',
+					displayName: 'Icon value',
+					key: `icon-${index}`,
 					placeholder: '★',
+					shouldHide: (config: BasesViewConfig) => {
+						const mode = config.get(`icon-mode-${index}`);
+						return mode !== 'text' && mode !== 'lucide';
+					},
 				},
 				{
 					type: 'dropdown',
