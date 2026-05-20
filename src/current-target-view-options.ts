@@ -21,6 +21,16 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 			max: 6,
 			step: 1,
 		},
+		{
+			type: 'dropdown',
+			displayName: 'Progress style',
+			key: 'progress-style',
+			default: 'dots',
+			options: {
+				dots: 'Dots',
+				ring: 'Ring',
+			},
+		},
 	];
 
 	for (let i = 0; i < MAX_PROPS; i++) {
