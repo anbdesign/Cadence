@@ -88,7 +88,13 @@ export class CurrentTargetView extends BasesView {
 
 		let countClass = 'ct-count';
 		if (goal !== null) {
-			countClass += current >= goal ? ' ct-count--ahead' : ' ct-count--behind';
+			if (current >= goal) {
+				countClass += ' ct-count--ahead';
+			} else if (current === goal - 1) {
+				countClass += ' ct-count--neutral';
+			} else {
+				countClass += ' ct-count--behind';
+			}
 		}
 
 		const label = this.getPropertyLabel(propertyId);

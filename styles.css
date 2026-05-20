@@ -97,10 +97,16 @@
 
 .ct-count {
 	font-size: var(--font-small);
-	color: var(--text-muted);
+	/* color: var(--text-muted); */
+	color: var(--text-normal);
 	white-space: nowrap;
 }
 
-.ct-count--ahead  { color: var(--color-accent); }
-.ct-count--behind { color: var(--text-faint); }
+/* .ct-count--ahead  { color: var(--color-accent); } */
+.ct-count--ahead  { color: var(--text-success); }
 
+.ct-count--neutral { color: var(--text-normal); }
+
+/* .ct-count--behind { color: var(--color-faint); } */
+/* .ct-count--behind { color: var(--text-normal); } */
+.ct-count--behind { color: var(--text-warning); }
