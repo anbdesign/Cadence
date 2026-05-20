@@ -21,7 +21,9 @@
 			"DOM",
 			"ES5",
 			"ES6",
-			"ES7"
+			"ES7",
+			"es2022",
+		  	"es2022.intl"
 		]
 	},
 	"include": [

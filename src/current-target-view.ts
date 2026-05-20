@@ -57,7 +57,8 @@ export class CurrentTargetView extends BasesView {
 			if (iconMode === 'text' || iconMode === 'lucide') {
 				iconStr = this.readString(`icon-${i}`);
 			} else if (iconMode === 'first-letter') {
-				iconStr = label.charAt(0);
+				const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+				iconStr = [...segmenter.segment(label)][0]?.segment ?? '';
 			} else {
 				iconStr = label;
 			}
