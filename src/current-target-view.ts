@@ -6,6 +6,7 @@ import { GoalMode, computeGoal } from './goal-scaling';
 export const CURRENT_TARGET_VIEW_TYPE = 'cadence-current-target';
 
 type IconMode = 'property-name' | 'first-letter' | 'text' | 'lucide';
+type ProgressStyle = 'dots' | 'ring';
 
 export class CurrentTargetView extends BasesView {
 	readonly type = CURRENT_TARGET_VIEW_TYPE;
@@ -48,6 +49,8 @@ export class CurrentTargetView extends BasesView {
 		const dayIndex = Math.min(6, Math.floor((referenceDate.getTime() - refWeekStart.getTime()) / 86400000));
 		const weekDates = buildDateColumns('week', referenceDate);
 
+		const progressStyle: ProgressStyle = this.readString('progress-style') === 'ring' ? 'ring' : 'dots';
+
 		propertyOrder.forEach((propertyId, i) => {
 			const current = this.countTruthy(propertyId, weekDates, entryMap);
 
@@ -68,7 +71,7 @@ export class CurrentTargetView extends BasesView {
 			const max     = typeof maxVal === 'number' ? Math.max(1, Math.round(maxVal)) : 5;
 
 			const goal = computeGoal(modeStr as GoalMode, max, dayIndex);
-			this.renderCell(propertyId, iconStr, iconMode, current, goal);
+			this.renderCell(propertyId, iconStr, iconMode, current, goal, progressStyle);
 		});
 	}
 
@@ -77,7 +80,8 @@ export class CurrentTargetView extends BasesView {
 		iconStr: string,
 		iconMode: IconMode,
 		current: number,
-		goal: number | null
+		goal: number | null,
+		progressStyle: ProgressStyle = 'dots'
 	): void {
 		const cell = this.containerEl.createDiv({ cls: 'ct-cell' });
 
@@ -109,12 +113,16 @@ export class CurrentTargetView extends BasesView {
 		});
 
 		if (goal !== null && goal > 0) {
-			const progressEl = contentEl.createDiv({ cls: 'ct-progress' });
-			const filled = Math.min(current, goal);
-			for (let i = 0; i < goal; i++) {
-				progressEl.createSpan({
-					cls: i < filled ? 'ct-progress-dot ct-progress-dot--filled' : 'ct-progress-dot ct-progress-dot--empty',
-				});
+			if (progressStyle === 'ring') {
+				renderRing(contentEl, current, goal);
+			} else {
+				const progressEl = contentEl.createDiv({ cls: 'ct-progress' });
+				const filled = Math.min(current, goal);
+				for (let i = 0; i < goal; i++) {
+					progressEl.createSpan({
+						cls: i < filled ? 'ct-progress-dot ct-progress-dot--filled' : 'ct-progress-dot ct-progress-dot--empty',
+					});
+				}
 			}
 		}
 	}
@@ -183,6 +191,39 @@ export class CurrentTargetView extends BasesView {
 		const [y, m, d] = latest.split('-').map(Number);
 		return new Date(y!, m! - 1, d, 12, 0, 0);
 	}
+}
+
+function renderRing(parent: HTMLElement, current: number, goal: number): void {
+	const progress = Math.min(current / goal, 1);
+	const size = 16;
+	const r = 5.5;
+	const cx = size / 2;
+	const circumference = 2 * Math.PI * r;
+
+	const svgNS = 'http://www.w3.org/2000/svg';
+	const svg = document.createElementNS(svgNS, 'svg');
+	svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+	svg.setAttribute('class', 'ct-ring');
+
+	const track = document.createElementNS(svgNS, 'circle');
+	track.setAttribute('cx', String(cx));
+	track.setAttribute('cy', String(cx));
+	track.setAttribute('r', String(r));
+	track.setAttribute('class', 'ct-ring-track');
+	svg.appendChild(track);
+
+	if (progress > 0) {
+		const fill = document.createElementNS(svgNS, 'circle');
+		fill.setAttribute('cx', String(cx));
+		fill.setAttribute('cy', String(cx));
+		fill.setAttribute('r', String(r));
+		fill.setAttribute('class', 'ct-ring-fill');
+		fill.style.strokeDasharray = String(circumference);
+		fill.style.strokeDashoffset = String(circumference * (1 - progress));
+		svg.appendChild(fill);
+	}
+
+	parent.appendChild(svg);
 }
 
 function renderIcon(el: HTMLElement, iconStr: string, iconMode: IconMode): void {

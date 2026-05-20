@@ -131,3 +131,25 @@
 .ct-progress-dot--empty {
 	background: var(--background-modifier-border);
 }
+
+.ct-ring {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+	overflow: visible;
+}
+
+.ct-ring-track {
+	fill: none;
+	stroke: var(--background-modifier-border);
+	stroke-width: 2;
+}
+
+.ct-ring-fill {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	transform: rotate(-90deg);
+	transform-origin: 50% 50%;
+}
