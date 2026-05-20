@@ -86,25 +86,37 @@ export class CurrentTargetView extends BasesView {
 			renderIcon(iconEl, iconStr, iconMode);
 		}
 
-		let countClass = 'ct-count';
+		let stateClass = '';
 		if (goal !== null) {
 			if (current >= goal) {
-				countClass += ' ct-count--ahead';
+				stateClass = ' ct-state--ahead';
 			} else if (current === goal - 1) {
-				countClass += ' ct-count--neutral';
+				stateClass = ' ct-state--neutral';
 			} else {
-				countClass += ' ct-count--behind';
+				stateClass = ' ct-state--behind';
 			}
 		}
 
 		const label = this.getPropertyLabel(propertyId);
 		const countText = goal !== null ? `${current} / ${goal}` : String(current);
 
-		cell.createSpan({
-			cls: countClass,
+		const contentEl = cell.createDiv({ cls: `ct-content${stateClass}` });
+
+		contentEl.createSpan({
+			cls: 'ct-count',
 			text: countText,
 			attr: { 'aria-label': `${label}: ${countText}` },
 		});
+
+		if (goal !== null && goal > 0) {
+			const progressEl = contentEl.createDiv({ cls: 'ct-progress' });
+			const filled = Math.min(current, goal);
+			for (let i = 0; i < goal; i++) {
+				progressEl.createSpan({
+					cls: i < filled ? 'ct-progress-dot ct-progress-dot--filled' : 'ct-progress-dot ct-progress-dot--empty',
+				});
+			}
+		}
 	}
 
 	private countTruthy(
