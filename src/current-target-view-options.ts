@@ -1,4 +1,5 @@
 import type { BasesViewConfig, ViewOption } from 'obsidian';
+import type CadencePlugin from './main';
 
 const MAX_PROPS = 9;
 
@@ -12,7 +13,7 @@ const GOAL_MODE_OPTIONS: Record<string, string> = {
 	consistency:    'Consistency',
 };
 
-export function getCurrentTargetViewOptions(): ViewOption[] {
+export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[] {
 	const options: ViewOption[] = [
 		{
 			type: 'slider',
@@ -27,9 +28,15 @@ export function getCurrentTargetViewOptions(): ViewOption[] {
 
 	for (let i = 0; i < MAX_PROPS; i++) {
 		const index = i;
+		const order = plugin.currentTargetConfig?.getOrder() ?? [];
+		const propId = order[index];
+		const label = propId
+			? propId.slice(propId.indexOf('.') + 1)
+			: `Property ${index + 1}`;
+
 		options.push({
 			type: 'group',
-			displayName: `Property ${i + 1}`,
+			displayName: label,
 			shouldHide: (config: BasesViewConfig) => config.getOrder().length <= index,
 			items: [
 				{
