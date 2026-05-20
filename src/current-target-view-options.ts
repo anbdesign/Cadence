@@ -3,14 +3,11 @@ import type CadencePlugin from './main';
 
 const MAX_PROPS = 9;
 
-const GOAL_MODE_OPTIONS: Record<string, string> = {
-	none:           'None (count only)',
-	linear:         'Linear daily',
-	'three-day':    '3× per week',
-	'front-loaded': 'Front-loaded',
-	'weekend-heavy': 'Weekend-heavy',
-	even:           'Even spacing',
-	consistency:    'Consistency',
+const GOAL_OPTIONS: Record<string, string> = {
+	'three-day': '3× per week',
+	weekdays:    'Weekdays',
+	'count-to':  'Count to…',
+	none:        'No goal',
 };
 
 export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[] {
@@ -63,19 +60,20 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 				},
 				{
 					type: 'dropdown',
-					displayName: 'Goal mode',
-					key: `mode-${i}`,
-					default: 'linear',
-					options: GOAL_MODE_OPTIONS,
+					displayName: 'Goal',
+					key: `goal-${i}`,
+					default: 'three-day',
+					options: GOAL_OPTIONS,
 				},
 				{
 					type: 'slider',
-					displayName: 'Weekly goal',
-					key: `max-${i}`,
+					displayName: 'Target count',
+					key: `goal-max-${i}`,
 					default: 5,
 					min: 1,
-					max: 14,
+					max: 7,
 					step: 1,
+					shouldHide: (config: BasesViewConfig) => config.get(`goal-${i}`) !== 'count-to',
 				},
 			],
 		});
