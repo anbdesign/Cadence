@@ -63,8 +63,8 @@ export class CurrentTargetView extends BasesView {
 				iconStr = label;
 			}
 
-			const modeStr = this.readString(`mode-${i}`) || 'linear';
-			const maxVal  = this.config.get(`max-${i}`);
+			const modeStr = this.readString(`goal-${i}`) || 'three-day';
+			const maxVal  = this.config.get(`goal-max-${i}`);
 			const max     = typeof maxVal === 'number' ? Math.max(1, Math.round(maxVal)) : 5;
 
 			const goal = computeGoal(modeStr as GoalMode, max, dayIndex);
