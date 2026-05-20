@@ -5,6 +5,8 @@ import { GoalMode, computeGoal } from './goal-scaling';
 
 export const CURRENT_TARGET_VIEW_TYPE = 'cadence-current-target';
 
+type IconMode = 'property-name' | 'first-letter' | 'text' | 'lucide';
+
 export class CurrentTargetView extends BasesView {
 	readonly type = CURRENT_TARGET_VIEW_TYPE;
 
@@ -49,19 +51,31 @@ export class CurrentTargetView extends BasesView {
 		propertyOrder.forEach((propertyId, i) => {
 			const current = this.countTruthy(propertyId, weekDates, entryMap);
 
-			const iconStr = this.readString(`icon-${i}`);
+			const iconMode = (this.readString(`icon-mode-${i}`) || 'property-name') as IconMode;
+			const label    = this.getPropertyLabel(propertyId);
+			let iconStr: string;
+			if (iconMode === 'text' || iconMode === 'lucide') {
+				iconStr = this.readString(`icon-${i}`);
+			} else if (iconMode === 'first-letter') {
+				const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+				iconStr = [...segmenter.segment(label)][0]?.segment ?? '';
+			} else {
+				iconStr = label;
+			}
+
 			const modeStr = this.readString(`mode-${i}`) || 'linear';
 			const maxVal  = this.config.get(`max-${i}`);
 			const max     = typeof maxVal === 'number' ? Math.max(1, Math.round(maxVal)) : 5;
 
 			const goal = computeGoal(modeStr as GoalMode, max, dayIndex);
-			this.renderCell(propertyId, iconStr, current, goal);
+			this.renderCell(propertyId, iconStr, iconMode, current, goal);
 		});
 	}
 
 	private renderCell(
 		propertyId: BasesPropertyId,
 		iconStr: string,
+		iconMode: IconMode,
 		current: number,
 		goal: number | null
 	): void {
@@ -69,7 +83,7 @@ export class CurrentTargetView extends BasesView {
 
 		const iconEl = cell.createSpan({ cls: 'ct-icon' });
 		if (iconStr) {
-			renderIcon(iconEl, iconStr);
+			renderIcon(iconEl, iconStr, iconMode);
 		}
 
 		let countClass = 'ct-count';
@@ -153,16 +167,13 @@ export class CurrentTargetView extends BasesView {
 	}
 }
 
-function renderIcon(el: HTMLElement, iconStr: string): void {
+function renderIcon(el: HTMLElement, iconStr: string, iconMode: IconMode): void {
 	const s = iconStr.trim();
 	if (!s) return;
-	// Lucide icon names are kebab-case lowercase strings
-	if (/^[a-z][a-z0-9-]*$/.test(s)) {
+	if (iconMode === 'lucide') {
 		const svg = getIcon(s);
-		if (svg) {
-			el.appendChild(svg);
-			return;
-		}
+		if (svg) el.appendChild(svg);
+		return;
 	}
 	el.textContent = s;
 }
