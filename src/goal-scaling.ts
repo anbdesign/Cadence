@@ -8,6 +8,9 @@ export function computeGoal(mode: GoalMode, max: number, dayIndex: number): numb
 
 	if (mode === 'three-day') return Math.round((d + 0.5) * 3 / 7);
 	if (mode === 'weekdays')  return Math.min(d + 1, 5);
-	// 'count-to'
-	return Math.round((d + 0.5) * Math.max(1, max) / 7);
+	// 'count-to' OLD CODE
+	// return Math.round((d + 0.5) * Math.max(1, max) / 7);
+
+	// 'count-to' new code
+	return Math.min(d + 1, Math.max(1, max));
 }
