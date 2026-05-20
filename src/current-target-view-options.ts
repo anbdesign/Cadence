@@ -23,6 +23,16 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 		},
 		{
 			type: 'dropdown',
+			displayName: 'Identifier style',
+			key: 'icon-style',
+			default: 'normal',
+			options: {
+				normal: 'Normal',
+				subtle: 'Subtle',
+			},
+		},
+		{
+			type: 'dropdown',
 			displayName: 'Progress style',
 			key: 'progress-style',
 			default: 'dots',
@@ -48,7 +58,7 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 			items: [
 				{
 					type: 'dropdown',
-					displayName: 'Icon',
+					displayName: 'Identifier',
 					key: `icon-mode-${index}`,
 					default: 'property-name',
 					options: {
@@ -60,7 +70,7 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 				},
 				{
 					type: 'text',
-					displayName: 'Icon value',
+					displayName: 'Identifier value',
 					key: `icon-${index}`,
 					placeholder: '★',
 					shouldHide: (config: BasesViewConfig) => {

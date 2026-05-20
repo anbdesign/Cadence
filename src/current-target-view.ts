@@ -49,6 +49,9 @@ export class CurrentTargetView extends BasesView {
 		const dayIndex = Math.min(6, Math.floor((referenceDate.getTime() - refWeekStart.getTime()) / 86400000));
 		const weekDates = buildDateColumns('week', referenceDate);
 
+		const iconStyle = this.readString('icon-style') === 'subtle' ? 'var(--text-muted)' : 'var(--text-normal)';
+		this.containerEl.style.setProperty('--ct-icon-color', iconStyle);
+
 		const progressStyle: ProgressStyle = this.readString('progress-style') === 'ring' ? 'ring' : 'dots';
 
 		propertyOrder.forEach((propertyId, i) => {

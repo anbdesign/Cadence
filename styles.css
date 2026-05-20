@@ -83,7 +83,7 @@
 }
 
 .ct-icon {
-	color: var(--text-muted);
+	color: var(--ct-icon-color, var(--text-normal));
 	font-size: 1em;
 	flex-shrink: 0;
 	display: flex;
