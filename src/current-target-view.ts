@@ -95,7 +95,9 @@ export class CurrentTargetView extends BasesView {
 
 		let stateClass = '';
 		if (goal !== null) {
-			if (current >= goal) {
+			if (current === 0 && goal === 0) {
+				stateClass = ' ct-state--neutral';
+			} else if (current >= goal) {
 				stateClass = ' ct-state--ahead';
 			} else if (current === goal - 1) {
 				stateClass = ' ct-state--neutral';
