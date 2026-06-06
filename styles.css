@@ -157,3 +157,18 @@
 .ct-ring-dot {
 	fill: currentColor;
 }
+
+.ct-trend {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.ct-trend svg {
+	width: 1em;
+	height: 1em;
+}
+
+.ct-trend--up     { color: var(--text-success); }
+.ct-trend--down   { color: var(--text-warning); }
+.ct-trend--stable { color: var(--text-muted); }

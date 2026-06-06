@@ -41,6 +41,16 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 				ring: 'Ring',
 			},
 		},
+		{
+			type: 'dropdown',
+			displayName: 'Trend timescale',
+			key: 'timescale',
+			default: 'week',
+			options: {
+				week: 'Week',
+				month: 'Month',
+			},
+		},
 	];
 
 	for (let i = 0; i < MAX_PROPS; i++) {
@@ -56,6 +66,16 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 			displayName: label,
 			shouldHide: (config: BasesViewConfig) => config.getOrder().length <= index,
 			items: [
+				{
+					type: 'dropdown',
+					displayName: 'Type',
+					key: `prop-type-${index}`,
+					default: 'boolean',
+					options: {
+						boolean: 'Boolean / list',
+						number:  'Number',
+					},
+				},
 				{
 					type: 'dropdown',
 					displayName: 'Identifier',
@@ -84,6 +104,7 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 					key: `goal-${i}`,
 					default: 'three-day',
 					options: GOAL_OPTIONS,
+					shouldHide: (config: BasesViewConfig) => config.get(`prop-type-${i}`) === 'number',
 				},
 				{
 					type: 'slider',
@@ -93,7 +114,7 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 					min: 1,
 					max: 7,
 					step: 1,
-					shouldHide: (config: BasesViewConfig) => config.get(`goal-${i}`) !== 'count-to',
+					shouldHide: (config: BasesViewConfig) => config.get(`goal-${i}`) !== 'count-to' || config.get(`prop-type-${i}`) === 'number',
 				},
 			],
 		});
