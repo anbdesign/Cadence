@@ -1,4 +1,4 @@
-import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, ListValue, MarkdownView, QueryController, getIcon } from 'obsidian';
+import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, ListValue, MarkdownView, NumberValue, QueryController, getIcon } from 'obsidian';
 import CadencePlugin from './main';
 import { buildDateColumns, formatDate, getCurrentDate, startOfWeek } from './date-utils';
 import { GoalMode, computeGoal } from './goal-scaling';
@@ -7,6 +7,7 @@ export const CURRENT_TARGET_VIEW_TYPE = 'cadence-current-target';
 
 type IconMode = 'property-name' | 'first-letter' | 'text' | 'lucide';
 type ProgressStyle = 'dots' | 'ring';
+type TrendDirection = 'up' | 'down' | 'stable';
 
 export class CurrentTargetView extends BasesView {
 	readonly type = CURRENT_TARGET_VIEW_TYPE;
@@ -53,10 +54,9 @@ export class CurrentTargetView extends BasesView {
 		this.containerEl.style.setProperty('--ct-icon-color', iconStyle);
 
 		const progressStyle: ProgressStyle = this.readString('progress-style') === 'ring' ? 'ring' : 'dots';
+		const timescale = (this.readString('timescale') || 'week') as 'week' | 'month';
 
 		propertyOrder.forEach((propertyId, i) => {
-			const current = this.countTruthy(propertyId, weekDates, entryMap);
-
 			const iconMode = (this.readString(`icon-mode-${i}`) || 'property-name') as IconMode;
 			const label    = this.getPropertyLabel(propertyId);
 			let iconStr: string;
@@ -68,6 +68,14 @@ export class CurrentTargetView extends BasesView {
 			} else {
 				iconStr = label;
 			}
+
+			const propType = this.readString(`prop-type-${i}`) || 'boolean';
+			if (propType === 'number') {
+				this.renderNumberCell(propertyId, iconStr, iconMode, referenceDate, timescale, entryMap);
+				return;
+			}
+
+			const current = this.countTruthy(propertyId, weekDates, entryMap);
 
 			const modeStr = this.readString(`goal-${i}`) || 'three-day';
 			const maxVal  = this.config.get(`goal-max-${i}`);
@@ -143,6 +151,108 @@ export class CurrentTargetView extends BasesView {
 			if ((val instanceof BooleanValue || val instanceof ListValue) && val.isTruthy()) count++;
 		}
 		return count;
+	}
+
+	private readLatestNumber(
+		propertyId: BasesPropertyId,
+		referenceDate: Date,
+		entryMap: Record<string, BasesEntry>
+	): number | null {
+		const refStr = formatDate(referenceDate);
+		const sortedKeys = Object.keys(entryMap).sort();
+		// Walk backward from referenceDate (inclusive)
+		for (let i = sortedKeys.length - 1; i >= 0; i--) {
+			const key = sortedKeys[i]!;
+			if (key > refStr) continue;
+			const raw = entryMap[key]!.getValue(propertyId);
+			if (!(raw instanceof NumberValue)) continue;
+			const n = parseFloat(raw.toString());
+			if (!isNaN(n)) return n;
+		}
+		return null;
+	}
+
+	private computeTrend(
+		current: number | null,
+		propertyId: BasesPropertyId,
+		referenceDate: Date,
+		timescale: 'week' | 'month',
+		entryMap: Record<string, BasesEntry>
+	): TrendDirection {
+		if (current === null) return 'stable';
+
+		// Build previous period date range
+		let prevStart: Date;
+		let prevEnd: Date;
+		if (timescale === 'month') {
+			const y = referenceDate.getFullYear();
+			const m = referenceDate.getMonth();
+			prevStart = new Date(y, m - 1, 1, 0, 0, 0);
+			prevEnd   = new Date(y, m, 0, 23, 59, 59); // last day of previous month
+		} else {
+			const thisWeekStart = startOfWeek(referenceDate);
+			prevEnd   = new Date(thisWeekStart.getTime() - 1);
+			prevStart = new Date(thisWeekStart.getTime() - 7 * 86400000);
+		}
+
+		const prevStartStr = formatDate(prevStart);
+		const prevEndStr   = formatDate(prevEnd);
+
+		const prevValues: number[] = [];
+		for (const key of Object.keys(entryMap)) {
+			if (key < prevStartStr || key > prevEndStr) continue;
+			const raw = entryMap[key]!.getValue(propertyId);
+			if (!(raw instanceof NumberValue)) continue;
+			const n = parseFloat(raw.toString());
+			if (!isNaN(n)) prevValues.push(n);
+		}
+
+		if (prevValues.length === 0) return 'stable';
+
+		const prev = prevValues.reduce((a, b) => a + b, 0) / prevValues.length;
+		const threshold = Math.abs(prev) > 1 ? Math.abs(prev) * 0.03 : 0.5;
+		const delta = current - prev;
+
+		if (delta > threshold) return 'up';
+		if (delta < -threshold) return 'down';
+		return 'stable';
+	}
+
+	private renderNumberCell(
+		propertyId: BasesPropertyId,
+		iconStr: string,
+		iconMode: IconMode,
+		referenceDate: Date,
+		timescale: 'week' | 'month',
+		entryMap: Record<string, BasesEntry>
+	): void {
+		const cell = this.containerEl.createDiv({ cls: 'ct-cell' });
+
+		const iconEl = cell.createSpan({ cls: 'ct-icon' });
+		if (iconStr) {
+			renderIcon(iconEl, iconStr, iconMode);
+		}
+
+		const current = this.readLatestNumber(propertyId, referenceDate, entryMap);
+		const trend   = this.computeTrend(current, propertyId, referenceDate, timescale, entryMap);
+
+		const valueText = current === null
+			? '—'
+			: Number.isInteger(current) ? String(current) : current.toFixed(1);
+
+		const label = this.getPropertyLabel(propertyId);
+		const contentEl = cell.createDiv({ cls: 'ct-content' });
+
+		contentEl.createSpan({
+			cls: 'ct-count',
+			text: valueText,
+			attr: { 'aria-label': `${label}: ${valueText}` },
+		});
+
+		const arrowIcon = trend === 'up' ? 'arrow-up' : trend === 'down' ? 'arrow-down' : 'arrow-right';
+		const trendEl = contentEl.createSpan({ cls: `ct-trend ct-trend--${trend}` });
+		const svg = getIcon(arrowIcon);
+		if (svg) trendEl.appendChild(svg);
 	}
 
 	private buildEntryMap(): Record<string, BasesEntry> {
