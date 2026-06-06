@@ -249,7 +249,7 @@ export class CurrentTargetView extends BasesView {
 			attr: { 'aria-label': `${label}: ${valueText}` },
 		});
 
-		const arrowIcon = trend === 'up' ? 'arrow-up' : trend === 'down' ? 'arrow-down' : 'arrow-right';
+		const arrowIcon = trend === 'up' ? 'arrow-up-right' : trend === 'down' ? 'arrow-down-right' : 'arrow-right-to-line';
 		const trendEl = contentEl.createSpan({ cls: `ct-trend ct-trend--${trend}` });
 		const svg = getIcon(arrowIcon);
 		if (svg) trendEl.appendChild(svg);

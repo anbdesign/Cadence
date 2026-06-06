@@ -169,6 +169,22 @@
 	height: 1em;
 }
 
-.ct-trend--up     { color: var(--text-success); }
-.ct-trend--down   { color: var(--text-warning); }
-.ct-trend--stable { color: var(--text-muted); }
+.ct-trend--up,
+.ct-trend--down,
+.ct-trend--stable {
+    svg {
+        stroke-width: 3;
+    }
+}
+
+.ct-trend--up {
+    color: var(--text-success);
+}
+
+.ct-trend--down {
+    color: var(--text-warning);
+}
+
+.ct-trend--stable {
+    color: var(--background-modifier-border);
+}
