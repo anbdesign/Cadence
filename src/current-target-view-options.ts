@@ -1,8 +1,6 @@
 import type { BasesViewConfig, ViewOption } from 'obsidian';
 import type CadencePlugin from './main';
 
-const MAX_PROPS = 9;
-
 const GOAL_OPTIONS: Record<string, string> = {
 	'three-day': '3× per week',
 	weekdays:    'Weekdays',
@@ -53,18 +51,16 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 		},
 	];
 
-	for (let i = 0; i < MAX_PROPS; i++) {
+	const order = plugin.currentTargetConfig?.getOrder() ?? [];
+
+	for (let i = 0; i < order.length; i++) {
 		const index = i;
-		const order = plugin.currentTargetConfig?.getOrder() ?? [];
-		const propId = order[index];
-		const label = propId
-			? propId.slice(propId.indexOf('.') + 1)
-			: `Property ${index + 1}`;
+		const propId = order[index] ?? '';
+		const label = propId.slice(propId.indexOf('.') + 1);
 
 		options.push({
 			type: 'group',
 			displayName: label,
-			shouldHide: (config: BasesViewConfig) => config.getOrder().length <= index,
 			items: [
 				{
 					type: 'dropdown',
