@@ -22,6 +22,9 @@
 .hh-header { padding-bottom: var(--hh-label-gap, 4px); }
 .hh-footer { padding-top: var(--hh-label-gap, 4px); }
 
+.hh-header--clickable,
+.hh-footer--clickable { cursor: pointer; }
+
 .hh-label {
 	color: var(--text-muted);
 	font-size: var(--font-smallest);

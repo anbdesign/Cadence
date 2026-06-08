@@ -17,6 +17,7 @@ export class CadenceView extends BasesView {
 
 	private readonly containerEl: HTMLElement;
 	private readonly plugin: CadencePlugin;
+	private showNumbers: boolean | null = null;
 
 	constructor(
 		controller: QueryController,
@@ -69,13 +70,16 @@ export class CadenceView extends BasesView {
 		const labelAlign = typeof labelAlignValue === 'string' ? labelAlignValue : 'right';
 		this.containerEl.style.setProperty('--hh-label-align', labelAlign);
 
-		this.renderHeader(dateColumns, focusDate);
+		const isCurrentWeek = timescale === 'week' && dateColumns.some(d => this.isToday(d));
+		const showNumbers = this.showNumbers ?? !isCurrentWeek;
+
+		this.renderHeader(dateColumns, focusDate, showNumbers);
 
 		for (const propertyId of propertyOrder) {
 			this.renderHabitRow(propertyId, dateColumns, entryMap);
 		}
 
-		this.renderFooter(dateColumns, focusDate);
+		this.renderFooter(dateColumns, focusDate, showNumbers);
 
 		// Measure after rendering so property icon glyphs (SF Symbols) are active in the font cache
 		const labels = propertyOrder.map(id => this.getPropertyLabel(id));
@@ -168,30 +172,40 @@ export class CadenceView extends BasesView {
 		return entriesByDate;
 	}
 
-	private renderHeader(dateColumns: Date[], focusDate: Date): void {
-		const headerEl = this.containerEl.createDiv({ cls: 'hh-header' });
+	private renderHeader(dateColumns: Date[], focusDate: Date, showNumbers: boolean): void {
+		const headerEl = this.containerEl.createDiv({ cls: 'hh-header hh-header--clickable' });
 
 		headerEl.createDiv({ cls: 'hh-label hh-label--header', text: '' });
 
 		for (const date of dateColumns) {
 			headerEl.createDiv({
 				cls: this.isFocusDate(date, focusDate) ? 'hh-day-label hh-day-label--today' : 'hh-day-label',
-				text: String(date.getDate()),
+				text: showNumbers ? String(date.getDate()) : this.getDayLabel(date),
 			});
 		}
+
+		headerEl.addEventListener('click', () => {
+			this.showNumbers = !showNumbers;
+			this.render();
+		});
 	}
 
-	private renderFooter(dateColumns: Date[], focusDate: Date): void {
-		const footerEl = this.containerEl.createDiv({ cls: 'hh-footer' });
+	private renderFooter(dateColumns: Date[], focusDate: Date, showNumbers: boolean): void {
+		const footerEl = this.containerEl.createDiv({ cls: 'hh-footer hh-footer--clickable' });
 
 		footerEl.createDiv({ cls: 'hh-label hh-label--header', text: '' });
 
 		for (const date of dateColumns) {
 			footerEl.createDiv({
 				cls: this.isFocusDate(date, focusDate) ? 'hh-day-label hh-day-label--today' : 'hh-day-label',
-				text: this.getDayLabel(date),
+				text: showNumbers ? String(date.getDate()) : this.getDayLabel(date),
 			});
 		}
+
+		footerEl.addEventListener('click', () => {
+			this.showNumbers = !showNumbers;
+			this.render();
+		});
 	}
 
 	private renderHabitRow(
