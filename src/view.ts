@@ -79,8 +79,6 @@ export class CadenceView extends BasesView {
 			this.renderHabitRow(propertyId, dateColumns, entryMap);
 		}
 
-		this.renderFooter(dateColumns, focusDate, showNumbers);
-
 		// Measure after rendering so property icon glyphs (SF Symbols) are active in the font cache
 		const labels = propertyOrder.map(id => this.getPropertyLabel(id));
 		this.containerEl.style.setProperty('--hh-label-width', this.computeLabelWidth(labels));
@@ -185,24 +183,6 @@ export class CadenceView extends BasesView {
 		}
 
 		headerEl.addEventListener('click', () => {
-			this.showNumbers = !showNumbers;
-			this.render();
-		});
-	}
-
-	private renderFooter(dateColumns: Date[], focusDate: Date, showNumbers: boolean): void {
-		const footerEl = this.containerEl.createDiv({ cls: 'hh-footer hh-footer--clickable' });
-
-		footerEl.createDiv({ cls: 'hh-label hh-label--header', text: '' });
-
-		for (const date of dateColumns) {
-			footerEl.createDiv({
-				cls: this.isFocusDate(date, focusDate) ? 'hh-day-label hh-day-label--today' : 'hh-day-label',
-				text: showNumbers ? String(date.getDate()) : this.getDayLabel(date),
-			});
-		}
-
-		footerEl.addEventListener('click', () => {
 			this.showNumbers = !showNumbers;
 			this.render();
 		});
