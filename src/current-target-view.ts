@@ -56,7 +56,11 @@ export class CurrentTargetView extends BasesView {
 		const progressStyle: ProgressStyle = this.readString('progress-style') === 'ring' ? 'ring' : 'dots';
 		const timescale = (this.readString('timescale') || 'week') as 'week' | 'month';
 
-		propertyOrder.forEach((propertyId, i) => {
+		const skipIndices = new Set<number>();
+		for (let i = 0; i < propertyOrder.length; i++) {
+			if (skipIndices.has(i)) continue;
+
+			const propertyId = propertyOrder[i]!;
 			const iconMode = (this.readString(`icon-mode-${i}`) || 'property-name') as IconMode;
 			const label    = this.getPropertyLabel(propertyId);
 			let iconStr: string;
@@ -72,18 +76,34 @@ export class CurrentTargetView extends BasesView {
 			const propType = this.readString(`prop-type-${i}`) || 'boolean';
 			if (propType === 'number') {
 				this.renderNumberCell(propertyId, iconStr, iconMode, referenceDate, timescale, entryMap);
-				return;
+				continue;
 			}
 
-			const current = this.countTruthy(propertyId, weekDates, entryMap);
+			let current = this.countTruthy(propertyId, weekDates, entryMap);
+
+			const mergeNext = this.config.get(`merge-next-${i}`) === true;
+			if (mergeNext && i + 1 < propertyOrder.length) {
+				const nextPropType = this.readString(`prop-type-${i + 1}`) || 'boolean';
+				if (nextPropType !== 'number') {
+					current += this.countTruthy(propertyOrder[i + 1]!, weekDates, entryMap);
+					skipIndices.add(i + 1);
+				}
+			}
 
 			const modeStr = this.readString(`goal-${i}`) || 'three-day';
 			const maxVal  = this.config.get(`goal-max-${i}`);
 			const max     = typeof maxVal === 'number' ? Math.max(1, Math.round(maxVal)) : 5;
 
-			const goal = computeGoal(modeStr as GoalMode, max, dayIndex);
+			let goal = computeGoal(modeStr as GoalMode, max, dayIndex);
+			if (skipIndices.has(i + 1)) {
+				const nextModeStr = this.readString(`goal-${i + 1}`) || 'three-day';
+				const nextMaxVal  = this.config.get(`goal-max-${i + 1}`);
+				const nextMax     = typeof nextMaxVal === 'number' ? Math.max(1, Math.round(nextMaxVal)) : 5;
+				const nextGoal    = computeGoal(nextModeStr as GoalMode, nextMax, dayIndex);
+				goal = (goal === null && nextGoal === null) ? null : (goal ?? 0) + (nextGoal ?? 0);
+			}
 			this.renderCell(propertyId, iconStr, iconMode, current, goal, progressStyle);
-		});
+		}
 	}
 
 	private renderCell(

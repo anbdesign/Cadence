@@ -112,6 +112,15 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 					step: 1,
 					shouldHide: (config: BasesViewConfig) => config.get(`goal-${i}`) !== 'count-to' || config.get(`prop-type-${i}`) === 'number',
 				},
+				...(index < order.length - 1
+					? [{
+						type: 'toggle' as const,
+						displayName: 'Merge with next property',
+						key: `merge-next-${index}`,
+						default: false,
+						shouldHide: (config: BasesViewConfig) => config.get(`prop-type-${index}`) === 'number',
+					}]
+					: []),
 			],
 		});
 	}
