@@ -1,6 +1,6 @@
 {
 	"name": "cadence",
-	"version": "0.6.2",
+	"version": "0.7.0",
 	"description": "A Bases view that renders a heatmap of daily habits from date-named notes and boolean properties.",
 	"main": "main.js",
 	"type": "module",
