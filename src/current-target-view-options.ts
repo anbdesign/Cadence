@@ -108,7 +108,7 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 					key: `goal-max-${i}`,
 					default: 5,
 					min: 1,
-					max: 7,
+					max: 14,
 					step: 1,
 					shouldHide: (config: BasesViewConfig) => config.get(`goal-${i}`) !== 'count-to' || config.get(`prop-type-${i}`) === 'number',
 				},
