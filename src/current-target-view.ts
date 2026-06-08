@@ -94,7 +94,14 @@ export class CurrentTargetView extends BasesView {
 			const maxVal  = this.config.get(`goal-max-${i}`);
 			const max     = typeof maxVal === 'number' ? Math.max(1, Math.round(maxVal)) : 5;
 
-			const goal = computeGoal(modeStr as GoalMode, max, dayIndex);
+			let goal = computeGoal(modeStr as GoalMode, max, dayIndex);
+			if (skipIndices.has(i + 1)) {
+				const nextModeStr = this.readString(`goal-${i + 1}`) || 'three-day';
+				const nextMaxVal  = this.config.get(`goal-max-${i + 1}`);
+				const nextMax     = typeof nextMaxVal === 'number' ? Math.max(1, Math.round(nextMaxVal)) : 5;
+				const nextGoal    = computeGoal(nextModeStr as GoalMode, nextMax, dayIndex);
+				goal = (goal === null && nextGoal === null) ? null : (goal ?? 0) + (nextGoal ?? 0);
+			}
 			this.renderCell(propertyId, iconStr, iconMode, current, goal, progressStyle);
 		}
 	}
