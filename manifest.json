@@ -1,7 +1,7 @@
 {
 	"id": "cadence",
 	"name": "Cadence",
-	"version": "0.8.1",
+	"version": "0.8.2",
 	"minAppVersion": "1.10.0",
 	"description": "A Bases view that renders a heatmap of daily habits from date-named notes and boolean properties.",
 	"author": "Alexander Bennett",
