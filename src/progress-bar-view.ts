@@ -123,7 +123,7 @@ export class ProgressBarView extends BasesView {
 }
 
 function formatDateLabel(basename: string): string {
-	const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(basename);
+	const match = /(\d{4})-(\d{2})-(\d{2})/.exec(basename);
 	if (!match) return basename;
 	const date = new Date(parseInt(match[1]!), parseInt(match[2]!) - 1, parseInt(match[3]!));
 	const sameYear = date.getFullYear() === new Date().getFullYear();
