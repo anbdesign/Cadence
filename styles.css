@@ -7,8 +7,7 @@
 }
 
 .hh-header,
-.hh-row,
-.hh-footer {
+.hh-row {
 	display: grid;
 	grid-template-columns: var(--hh-label-width, 80px) repeat(var(--hh-column-count), var(--hh-col-width, 20px));
 	align-items: center;
@@ -20,7 +19,8 @@
 .cadence-view--large  { --hh-col-width: 32px; --hh-dot-size: 18px; --hh-missing-size: 12px; --hh-col-gap: 10px; --hh-row-gap: 8px; --hh-padding: 24px; --hh-label-gap: 10px; --hh-pill-pad: 9px;  }
 
 .hh-header { padding-bottom: var(--hh-label-gap, 4px); }
-.hh-footer { padding-top: var(--hh-label-gap, 4px); }
+
+.hh-header--clickable { cursor: pointer; }
 
 .hh-label {
 	color: var(--text-muted);
