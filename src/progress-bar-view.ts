@@ -57,6 +57,7 @@ export class ProgressBarView extends BasesView {
 		this.containerEl.style.setProperty('--pb-guide-opacity', guideOpacity);
 
 		const showLabel = this.config.get('show-label') !== false;
+		this.containerEl.style.gridTemplateColumns = showLabel ? 'auto auto 1fr' : 'auto 1fr';
 
 		for (let i = 0; i < entries.length; i++) {
 			const entry = entries[i]!;
