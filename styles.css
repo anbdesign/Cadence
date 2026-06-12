@@ -188,3 +188,70 @@
 .ct-trend--stable {
     color: var(--background-modifier-border);
 }
+
+/* ── Progress bar view ───────────────────── */
+.pb-view {
+	display: grid;
+	grid-template-columns: auto auto 1fr;
+	column-gap: 10px;
+	row-gap: 8px;
+	padding: 16px;
+	overflow: auto;
+}
+
+.pb-row {
+	display: contents;
+}
+
+.pb-label {
+	color: var(--text-muted);
+	font-size: var(--font-small);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
+}
+
+.pb-label svg {
+	width: 1em;
+	height: 1em;
+}
+
+.pb-duration {
+	color: var(--text-normal);
+	font-size: var(--font-small);
+	white-space: nowrap;
+	text-align: right;
+}
+
+.pb-duration--empty {
+	color: var(--text-faint);
+}
+
+.pb-track {
+	position: relative;
+	border-radius: 999px;
+	overflow: hidden;
+	background: var(--background-modifier-border);
+}
+
+.pb-view--thin   .pb-track { height: 4px; }
+.pb-view--medium .pb-track { height: 8px; }
+.pb-view--thick  .pb-track { height: 14px; }
+
+.pb-fill {
+	height: 100%;
+	border-radius: 999px;
+	background: var(--color-accent);
+}
+
+.pb-guide {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 1px;
+	background: var(--background-primary);
+	opacity: var(--pb-guide-opacity, 0.6);
+	pointer-events: none;
+}
