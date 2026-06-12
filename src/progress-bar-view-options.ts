@@ -46,6 +46,12 @@ export function getProgressBarViewOptions(): ViewOption[] {
 			shouldHide: (config: BasesViewConfig) => config.get('guide-interval') === 'none',
 		},
 		{
+			type: 'toggle',
+			displayName: 'Show label',
+			key: 'show-label',
+			default: true,
+		},
+		{
 			type: 'dropdown',
 			displayName: 'Bar height',
 			key: 'bar-height',

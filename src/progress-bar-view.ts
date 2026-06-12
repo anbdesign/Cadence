@@ -56,10 +56,12 @@ export class ProgressBarView extends BasesView {
 		const guideOpacity = { subtle: '0.25', medium: '0.6', strong: '1' }[this.readString('guide-prominence')] ?? '0.6';
 		this.containerEl.style.setProperty('--pb-guide-opacity', guideOpacity);
 
+		const showLabel = this.config.get('show-label') !== false;
+
 		for (let i = 0; i < entries.length; i++) {
 			const entry = entries[i]!;
 			const seconds = parsedSeconds[i] ?? null;
-			this.renderRow(entry.file.basename, seconds, maxSeconds, guideIntervalSeconds);
+			this.renderRow(formatDateLabel(entry.file.basename), seconds, maxSeconds, guideIntervalSeconds, showLabel);
 		}
 	}
 
@@ -80,11 +82,14 @@ export class ProgressBarView extends BasesView {
 		label: string,
 		seconds: number | null,
 		maxSeconds: number,
-		guideIntervalSeconds: number
+		guideIntervalSeconds: number,
+		showLabel: boolean
 	): void {
 		const row = this.containerEl.createDiv({ cls: 'pb-row' });
 
-		row.createSpan({ cls: 'pb-label', text: label });
+		if (showLabel) {
+			row.createSpan({ cls: 'pb-label', text: label });
+		}
 
 		const durationEl = row.createSpan({ cls: 'pb-duration' });
 		if (seconds !== null) {
@@ -115,4 +120,16 @@ export class ProgressBarView extends BasesView {
 		const val = this.config.get(key);
 		return typeof val === 'string' ? val : '';
 	}
+}
+
+function formatDateLabel(basename: string): string {
+	const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(basename);
+	if (!match) return basename;
+	const date = new Date(parseInt(match[1]!), parseInt(match[2]!) - 1, parseInt(match[3]!));
+	const sameYear = date.getFullYear() === new Date().getFullYear();
+	return date.toLocaleDateString(undefined, {
+		month: 'short',
+		day: 'numeric',
+		...(sameYear ? {} : { year: 'numeric' }),
+	});
 }
