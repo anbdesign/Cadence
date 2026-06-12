@@ -11,7 +11,6 @@ export const CADENCE_VIEW_TYPE = 'cadence';
 
 export default class CadencePlugin extends Plugin {
 	currentTargetConfig: BasesViewConfig | null = null;
-	progressBarConfig: BasesViewConfig | null = null;
 
 	async onload() {
 		const registered = this.registerBasesView(CADENCE_VIEW_TYPE, {
@@ -39,10 +38,8 @@ export default class CadencePlugin extends Plugin {
 		this.registerBasesView(PROGRESS_BAR_VIEW_TYPE, {
 			name: 'Progress bar',
 			icon: 'lucide-bar-chart-horizontal',
-			factory: (controller, containerEl) => {
-				return new ProgressBarView(controller, containerEl, this);
-			},
-			options: () => getProgressBarViewOptions(this),
+			factory: (controller, containerEl) => new ProgressBarView(controller, containerEl),
+			options: getProgressBarViewOptions,
 		});
 	}
 }

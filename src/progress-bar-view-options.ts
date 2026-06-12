@@ -1,8 +1,7 @@
-import type { BasesViewConfig, ViewOption } from 'obsidian';
-import type CadencePlugin from './main';
+import type { ViewOption } from 'obsidian';
 
-export function getProgressBarViewOptions(plugin: CadencePlugin): ViewOption[] {
-	const options: ViewOption[] = [
+export function getProgressBarViewOptions(): ViewOption[] {
+	return [
 		{
 			type: 'dropdown',
 			displayName: 'Duration format',
@@ -27,11 +26,11 @@ export function getProgressBarViewOptions(plugin: CadencePlugin): ViewOption[] {
 			key: 'guide-interval',
 			default: 'none',
 			options: {
-				none:   'None',
-				'15':   'Every 15 min',
-				'30':   'Every 30 min',
-				'60':   'Every 1 hr',
-				'120':  'Every 2 hr',
+				none:  'None',
+				'15':  'Every 15 min',
+				'30':  'Every 30 min',
+				'60':  'Every 1 hr',
+				'120': 'Every 2 hr',
 			},
 		},
 		{
@@ -46,43 +45,4 @@ export function getProgressBarViewOptions(plugin: CadencePlugin): ViewOption[] {
 			},
 		},
 	];
-
-	const order = plugin.progressBarConfig?.getOrder() ?? [];
-
-	for (let i = 0; i < order.length; i++) {
-		const index = i;
-		const propId = order[index] ?? '';
-		const label = propId.slice(propId.indexOf('.') + 1);
-
-		options.push({
-			type: 'group',
-			displayName: label,
-			items: [
-				{
-					type: 'dropdown',
-					displayName: 'Label',
-					key: `label-mode-${index}`,
-					default: 'property-name',
-					options: {
-						'property-name': 'Property name',
-						'first-letter':  'First letter',
-						'text':          'Text',
-						'lucide':        'Lucide icon',
-					},
-				},
-				{
-					type: 'text',
-					displayName: 'Label value',
-					key: `label-${index}`,
-					placeholder: '★',
-					shouldHide: (config: BasesViewConfig) => {
-						const mode = config.get(`label-mode-${index}`);
-						return mode !== 'text' && mode !== 'lucide';
-					},
-				},
-			],
-		});
-	}
-
-	return options;
 }
