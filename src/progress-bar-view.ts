@@ -53,6 +53,9 @@ export class ProgressBarView extends BasesView {
 
 		const guideIntervalSeconds = guideIntervalStr !== 'none' ? parseInt(guideIntervalStr, 10) * 60 : 0;
 
+		const guideOpacity = { subtle: '0.25', medium: '0.6', strong: '1' }[this.readString('guide-prominence')] ?? '0.6';
+		this.containerEl.style.setProperty('--pb-guide-opacity', guideOpacity);
+
 		for (let i = 0; i < entries.length; i++) {
 			const entry = entries[i]!;
 			const seconds = parsedSeconds[i] ?? null;

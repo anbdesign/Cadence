@@ -1,4 +1,4 @@
-import type { ViewOption } from 'obsidian';
+import type { BasesViewConfig, ViewOption } from 'obsidian';
 
 export function getProgressBarViewOptions(): ViewOption[] {
 	return [
@@ -32,6 +32,18 @@ export function getProgressBarViewOptions(): ViewOption[] {
 				'60':  'Every 1 hr',
 				'120': 'Every 2 hr',
 			},
+		},
+		{
+			type: 'dropdown',
+			displayName: 'Guide prominence',
+			key: 'guide-prominence',
+			default: 'medium',
+			options: {
+				subtle: 'Subtle',
+				medium: 'Medium',
+				strong: 'Strong',
+			},
+			shouldHide: (config: BasesViewConfig) => config.get('guide-interval') === 'none',
 		},
 		{
 			type: 'dropdown',

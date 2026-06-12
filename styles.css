@@ -257,6 +257,6 @@
 	bottom: 0;
 	width: 1px;
 	background: var(--background-primary);
-	opacity: 0.6;
+	opacity: var(--pb-guide-opacity, 0.6);
 	pointer-events: none;
 }
