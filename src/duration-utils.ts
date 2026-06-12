@@ -8,7 +8,7 @@ export function parseDuration(str: string, format: DurationFormat): number | nul
 
 	let resolved: 'HH:MM:SS' | 'HH:MM' | 'MM:SS';
 	if (format === 'auto') {
-		resolved = parts.length >= 3 ? 'HH:MM:SS' : 'HH:MM';
+		resolved = parts.length >= 3 ? 'HH:MM:SS' : 'MM:SS';
 	} else {
 		resolved = format;
 	}
@@ -48,7 +48,7 @@ export function formatDuration(totalSeconds: number): string {
 		return minutes > 0 ? `${hours} hr ${minutes} min` : `${hours} hr`;
 	}
 	if (minutes > 0) {
-		return seconds > 0 ? `${minutes} min ${seconds} sec` : `${minutes} min`;
+		return `${minutes} min`;
 	}
 	return `${seconds} sec`;
 }
