@@ -1,7 +1,7 @@
 import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, ListValue, MarkdownView, NumberValue, QueryController, getIcon } from 'obsidian';
 import CadencePlugin from './main';
 import { buildDateColumns, formatDate, getCurrentDate, startOfWeek } from './date-utils';
-import { GoalMode, computeGoal } from './goal-scaling';
+import { GoalMode, computeGoal, computeDailyDelta } from './goal-scaling';
 
 export const CURRENT_TARGET_VIEW_TYPE = 'cadence-current-target';
 
@@ -95,14 +95,18 @@ export class CurrentTargetView extends BasesView {
 			const max     = typeof maxVal === 'number' ? Math.max(1, Math.round(maxVal)) : 5;
 
 			let goal = computeGoal(modeStr as GoalMode, max, dayIndex);
+			let neutralWindow = 1;
 			if (skipIndices.has(i + 1)) {
 				const nextModeStr = this.readString(`goal-${i + 1}`) || 'three-day';
 				const nextMaxVal  = this.config.get(`goal-max-${i + 1}`);
 				const nextMax     = typeof nextMaxVal === 'number' ? Math.max(1, Math.round(nextMaxVal)) : 5;
 				const nextGoal    = computeGoal(nextModeStr as GoalMode, nextMax, dayIndex);
 				goal = (goal === null && nextGoal === null) ? null : (goal ?? 0) + (nextGoal ?? 0);
+				neutralWindow = computeDailyDelta(modeStr as GoalMode, max, dayIndex)
+					+ computeDailyDelta(nextModeStr as GoalMode, nextMax, dayIndex);
+				if (neutralWindow < 1) neutralWindow = 1;
 			}
-			this.renderCell(propertyId, iconStr, iconMode, current, goal, progressStyle);
+			this.renderCell(propertyId, iconStr, iconMode, current, goal, progressStyle, neutralWindow);
 		}
 	}
 
@@ -112,7 +116,8 @@ export class CurrentTargetView extends BasesView {
 		iconMode: IconMode,
 		current: number,
 		goal: number | null,
-		progressStyle: ProgressStyle = 'dots'
+		progressStyle: ProgressStyle = 'dots',
+		neutralWindow: number = 1
 	): void {
 		const cell = this.containerEl.createDiv({ cls: 'ct-cell' });
 
@@ -127,7 +132,7 @@ export class CurrentTargetView extends BasesView {
 				stateClass = ' ct-state--neutral';
 			} else if (current >= goal) {
 				stateClass = ' ct-state--ahead';
-			} else if (current === goal - 1) {
+			} else if (current >= goal - neutralWindow) {
 				stateClass = ' ct-state--neutral';
 			} else {
 				stateClass = ' ct-state--behind';
