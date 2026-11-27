@@ -61,11 +61,11 @@ export class CurrentTargetView extends BasesView {
 			if (skipIndices.has(i)) continue;
 
 			const propertyId = propertyOrder[i]!;
-			const iconMode = (this.readString(`icon-mode-${i}`) || 'property-name') as IconMode;
+			const iconMode = (this.readString(`icon-mode-${propertyId}`) || 'property-name') as IconMode;
 			const label    = this.getPropertyLabel(propertyId);
 			let iconStr: string;
 			if (iconMode === 'text' || iconMode === 'lucide') {
-				iconStr = this.readString(`icon-${i}`);
+				iconStr = this.readString(`icon-${propertyId}`);
 			} else if (iconMode === 'first-letter') {
 				const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 				iconStr = [...segmenter.segment(label)][0]?.segment ?? '';
@@ -73,7 +73,7 @@ export class CurrentTargetView extends BasesView {
 				iconStr = label;
 			}
 
-			const propType = this.readString(`prop-type-${i}`) || 'boolean';
+			const propType = this.readString(`prop-type-${propertyId}`) || 'boolean';
 			if (propType === 'number') {
 				this.renderNumberCell(propertyId, iconStr, iconMode, referenceDate, timescale, entryMap);
 				continue;
@@ -81,24 +81,26 @@ export class CurrentTargetView extends BasesView {
 
 			let current = this.countTruthy(propertyId, weekDates, entryMap);
 
-			const mergeNext = this.config.get(`merge-next-${i}`) === true;
+			const mergeNext = this.config.get(`merge-next-${propertyId}`) === true;
 			if (mergeNext && i + 1 < propertyOrder.length) {
-				const nextPropType = this.readString(`prop-type-${i + 1}`) || 'boolean';
+				const nextPropertyId = propertyOrder[i + 1]!;
+				const nextPropType = this.readString(`prop-type-${nextPropertyId}`) || 'boolean';
 				if (nextPropType !== 'number') {
-					current += this.countTruthy(propertyOrder[i + 1]!, weekDates, entryMap);
+					current += this.countTruthy(nextPropertyId, weekDates, entryMap);
 					skipIndices.add(i + 1);
 				}
 			}
 
-			const modeStr = this.readString(`goal-${i}`) || 'three-day';
-			const maxVal  = this.config.get(`goal-max-${i}`);
+			const modeStr = this.readString(`goal-${propertyId}`) || 'three-day';
+			const maxVal  = this.config.get(`goal-max-${propertyId}`);
 			const max     = typeof maxVal === 'number' ? Math.max(1, Math.round(maxVal)) : 5;
 
 			let goal = computeGoal(modeStr as GoalMode, max, dayIndex);
 			let neutralWindow = 1;
 			if (skipIndices.has(i + 1)) {
-				const nextModeStr = this.readString(`goal-${i + 1}`) || 'three-day';
-				const nextMaxVal  = this.config.get(`goal-max-${i + 1}`);
+				const nextPropertyId = propertyOrder[i + 1]!;
+				const nextModeStr = this.readString(`goal-${nextPropertyId}`) || 'three-day';
+				const nextMaxVal  = this.config.get(`goal-max-${nextPropertyId}`);
 				const nextMax     = typeof nextMaxVal === 'number' ? Math.max(1, Math.round(nextMaxVal)) : 5;
 				const nextGoal    = computeGoal(nextModeStr as GoalMode, nextMax, dayIndex);
 				goal = (goal === null && nextGoal === null) ? null : (goal ?? 0) + (nextGoal ?? 0);

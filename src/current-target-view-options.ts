@@ -54,8 +54,7 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 	const order = plugin.currentTargetConfig?.getOrder() ?? [];
 
 	for (let i = 0; i < order.length; i++) {
-		const index = i;
-		const propId = order[index] ?? '';
+		const propId = order[i] ?? '';
 		const label = propId.slice(propId.indexOf('.') + 1);
 
 		options.push({
@@ -65,7 +64,7 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 				{
 					type: 'dropdown',
 					displayName: 'Type',
-					key: `prop-type-${index}`,
+					key: `prop-type-${propId}`,
 					default: 'boolean',
 					options: {
 						boolean: 'Boolean / list',
@@ -75,7 +74,7 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 				{
 					type: 'dropdown',
 					displayName: 'Identifier',
-					key: `icon-mode-${index}`,
+					key: `icon-mode-${propId}`,
 					default: 'property-name',
 					options: {
 						'property-name': 'Property name',
@@ -87,38 +86,38 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 				{
 					type: 'text',
 					displayName: 'Identifier value',
-					key: `icon-${index}`,
+					key: `icon-${propId}`,
 					placeholder: '★',
 					shouldHide: (config: BasesViewConfig) => {
-						const mode = config.get(`icon-mode-${index}`);
+						const mode = config.get(`icon-mode-${propId}`);
 						return mode !== 'text' && mode !== 'lucide';
 					},
 				},
 				{
 					type: 'dropdown',
 					displayName: 'Goal',
-					key: `goal-${i}`,
+					key: `goal-${propId}`,
 					default: 'three-day',
 					options: GOAL_OPTIONS,
-					shouldHide: (config: BasesViewConfig) => config.get(`prop-type-${i}`) === 'number',
+					shouldHide: (config: BasesViewConfig) => config.get(`prop-type-${propId}`) === 'number',
 				},
 				{
 					type: 'slider',
 					displayName: 'Target count',
-					key: `goal-max-${i}`,
+					key: `goal-max-${propId}`,
 					default: 5,
 					min: 1,
 					max: 7,
 					step: 1,
-					shouldHide: (config: BasesViewConfig) => config.get(`goal-${i}`) !== 'count-to' || config.get(`prop-type-${i}`) === 'number',
+					shouldHide: (config: BasesViewConfig) => config.get(`goal-${propId}`) !== 'count-to' || config.get(`prop-type-${propId}`) === 'number',
 				},
-				...(index < order.length - 1
+				...(i < order.length - 1
 					? [{
 						type: 'toggle' as const,
 						displayName: 'Merge with next property',
-						key: `merge-next-${index}`,
+						key: `merge-next-${propId}`,
 						default: false,
-						shouldHide: (config: BasesViewConfig) => config.get(`prop-type-${index}`) === 'number',
+						shouldHide: (config: BasesViewConfig) => config.get(`prop-type-${propId}`) === 'number',
 					}]
 					: []),
 			],
