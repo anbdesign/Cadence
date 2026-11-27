@@ -28,6 +28,7 @@ A "today pill" (SVG squircle border) highlights the current date's column.
 | `src/view.ts` | Core rendering: heatmap grid, dot state resolution, today-pill positioning. |
 | `src/date-utils.ts` | Date math: column generation, Monday-anchored week-start, date formatting. |
 | `src/view-options.ts` | Declares the `timescale` view option (`week` / `month` dropdown). |
+| `src/property-colors.ts` | Defines the per-property identifier palette using theme-aware Obsidian color variables. |
 | `src/settings.ts` | Reserved for future plugin-level settings; currently empty. |
 | `styles.css` | Grid layout and dot/pill styling using Obsidian CSS custom properties. |
 
@@ -70,6 +71,8 @@ Obsidian API types used: `BasesView`, `BasesEntry`, `BasesPropertyId`, `BooleanV
 - `--hh-label-width` — measured pixel width of the widest row label (set after render via `computeLabelWidth()`)
 
 **Property label display** — `BasesPropertyId` values carry a `"note."` prefix (e.g. `"note.exercise"`). The view strips this prefix before rendering the row label.
+
+**Property identifier colors** — Current / target color settings use keys derived from the full `BasesPropertyId`, so colors stay attached when properties are reordered. Palette values resolve to Obsidian color variables and default to the existing Normal/Subtle identifier style when absent or invalid.
 
 **Monday-anchored weeks** — `startOfWeek()` in `date-utils.ts` anchors to Monday (ISO week), not Sunday.
 

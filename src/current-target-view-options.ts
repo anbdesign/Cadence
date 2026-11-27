@@ -1,5 +1,6 @@
 import type { BasesViewConfig, ViewOption } from 'obsidian';
 import type CadencePlugin from './main';
+import { PROPERTY_COLOR_OPTIONS } from './property-colors';
 
 const GOAL_OPTIONS: Record<string, string> = {
 	'three-day': '3× per week',
@@ -92,6 +93,13 @@ export function getCurrentTargetViewOptions(plugin: CadencePlugin): ViewOption[]
 						const mode = config.get(`icon-mode-${propId}`);
 						return mode !== 'text' && mode !== 'lucide';
 					},
+				},
+				{
+					type: 'dropdown',
+					displayName: 'Color',
+					key: `color-${propId}`,
+					default: 'inherit',
+					options: PROPERTY_COLOR_OPTIONS,
 				},
 				{
 					type: 'dropdown',
