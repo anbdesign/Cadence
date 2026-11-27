@@ -2,6 +2,7 @@ import { BasesEntry, BasesPropertyId, BasesView, BooleanValue, ListValue, Markdo
 import CadencePlugin from './main';
 import { buildDateColumns, formatDate, getCurrentDate, startOfWeek } from './date-utils';
 import { GoalMode, computeGoal, computeDailyDelta } from './goal-scaling';
+import { resolvePropertyColor } from './property-colors';
 
 export const CURRENT_TARGET_VIEW_TYPE = 'cadence-current-target';
 
@@ -62,6 +63,7 @@ export class CurrentTargetView extends BasesView {
 
 			const propertyId = propertyOrder[i]!;
 			const iconMode = (this.readString(`icon-mode-${propertyId}`) || 'property-name') as IconMode;
+			const iconColor = resolvePropertyColor(this.config.get(`color-${propertyId}`));
 			const label    = this.getPropertyLabel(propertyId);
 			let iconStr: string;
 			if (iconMode === 'text' || iconMode === 'lucide') {
@@ -75,7 +77,7 @@ export class CurrentTargetView extends BasesView {
 
 			const propType = this.readString(`prop-type-${propertyId}`) || 'boolean';
 			if (propType === 'number') {
-				this.renderNumberCell(propertyId, iconStr, iconMode, referenceDate, timescale, entryMap);
+				this.renderNumberCell(propertyId, iconStr, iconMode, iconColor, referenceDate, timescale, entryMap);
 				continue;
 			}
 
@@ -108,7 +110,7 @@ export class CurrentTargetView extends BasesView {
 					+ computeDailyDelta(nextModeStr as GoalMode, nextMax, dayIndex);
 				if (neutralWindow < 1) neutralWindow = 1;
 			}
-			this.renderCell(propertyId, iconStr, iconMode, current, goal, progressStyle, neutralWindow);
+			this.renderCell(propertyId, iconStr, iconMode, iconColor, current, goal, progressStyle, neutralWindow);
 		}
 	}
 
@@ -116,6 +118,7 @@ export class CurrentTargetView extends BasesView {
 		propertyId: BasesPropertyId,
 		iconStr: string,
 		iconMode: IconMode,
+		iconColor: string | null,
 		current: number,
 		goal: number | null,
 		progressStyle: ProgressStyle = 'dots',
@@ -124,6 +127,7 @@ export class CurrentTargetView extends BasesView {
 		const cell = this.containerEl.createDiv({ cls: 'ct-cell' });
 
 		const iconEl = cell.createSpan({ cls: 'ct-icon' });
+		if (iconColor) iconEl.style.setProperty('--ct-property-color', iconColor);
 		if (iconStr) {
 			renderIcon(iconEl, iconStr, iconMode);
 		}
@@ -251,6 +255,7 @@ export class CurrentTargetView extends BasesView {
 		propertyId: BasesPropertyId,
 		iconStr: string,
 		iconMode: IconMode,
+		iconColor: string | null,
 		referenceDate: Date,
 		timescale: 'week' | 'month',
 		entryMap: Record<string, BasesEntry>
@@ -258,6 +263,7 @@ export class CurrentTargetView extends BasesView {
 		const cell = this.containerEl.createDiv({ cls: 'ct-cell' });
 
 		const iconEl = cell.createSpan({ cls: 'ct-icon' });
+		if (iconColor) iconEl.style.setProperty('--ct-property-color', iconColor);
 		if (iconStr) {
 			renderIcon(iconEl, iconStr, iconMode);
 		}
